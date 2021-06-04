@@ -1,6 +1,7 @@
 stages:
   - test
   - build image
+  - deploy
 
 variables:
   DOCKER_TLS_CERTDIR: ""
@@ -13,6 +14,7 @@ variables:
   SBT_OPTS: "-sbt-launch-dir .sbt/launchers -sbt-dir .sbt -ivy .ivy2 -Dsbt.color=true -Dscala.color=true"
   ARTIFACTORY_USERNAME: cicd-innovation
   ARTIFACTORY_URL: https://artifactory-horw.int.toradex.com/artifactory
+  SERVICE: treehub
 
 image: artifactory-horw.int.toradex.com/ota-docker-dev-horw/tdx-inno-ci-scala:0.0.1
 
@@ -35,6 +37,11 @@ default:
 
 test:
   stage: test
+  only:
+    refs:
+      - master
+      - branches
+      - merge_requests
   variables:
     DB_URL: "jdbc:mariadb://db:3306/ota_treehub"
   before_script:
@@ -47,13 +54,19 @@ test:
 include:
   - project: rd/innovation/continuous-delivery/ci-container-build
     file: gitlab-ci-templates/jfrog-sbt-docker-publish.yaml
+  - project: 'rd/platform/deploy-env'
+    ref: master
+    file: '/gitlab/deploy-core-service.yml'
 
 build docker image:
   stage: build image
   only:
-    - master
+    refs:
+      - master
+      - merge_requests
   extends: .jfrog-sbt-docker-publish
   variables:
     ARTIFACTORY_REPO: ota-docker-dev-horw
     SERVICE_NAME: treehub
+
 
