@@ -89,7 +89,9 @@ trait ResourceSpec extends ScalatestRouteTest with DatabaseSpec with Settings {
 
   lazy val namespaceExtractor = NamespaceDirectives.defaultNamespaceExtractor.map(_.namespace)
 
-  val objectStore = new ObjectStore(new LocalFsBlobStore(Files.createTempDirectory("treehub-obj")))
+  val localFsBlobStore = new LocalFsBlobStore(Files.createTempDirectory("treehub-obj"))
+
+  val objectStore = new ObjectStore(localFsBlobStore)
 
   val deltaStore = new LocalDeltaStorage(Files.createTempDirectory("treehub-deltas"))
 

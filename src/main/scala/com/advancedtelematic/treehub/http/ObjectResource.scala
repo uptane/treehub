@@ -69,6 +69,9 @@ class ObjectResource(namespace: Directive1[Namespace],
 
         complete(f)
       } ~
+      (delete & hintNamespaceStorage(ns)) {
+        complete(objectStore.deleteObject(ns, objectId).map(_ => StatusCodes.NoContent))
+      } ~
       (put & hintNamespaceStorage(ns)) {
         complete(objectStore.completeClientUpload(ns, objectId).map(_ => StatusCodes.NoContent))
       } ~
