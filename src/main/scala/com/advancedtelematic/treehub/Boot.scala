@@ -2,8 +2,7 @@ package com.advancedtelematic.treehub
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.{Directives, Route}
-import com.advancedtelematic.libats.data.DataType.Namespace
-import com.advancedtelematic.libats.http.BootApp
+import com.advancedtelematic.libats.http.{BootApp, NamespaceDirectives}
 import com.advancedtelematic.libats.http.LogDirectives._
 import com.advancedtelematic.libats.http.VersionDirectives._
 import com.advancedtelematic.libats.http.tracing.Tracing
@@ -15,10 +14,9 @@ import com.advancedtelematic.metrics.{AkkaHttpRequestMetrics, MetricsSupport}
 import com.advancedtelematic.treehub.client._
 import com.advancedtelematic.treehub.daemon.StaleObjectArchiveActor
 import com.advancedtelematic.treehub.delta_store.{LocalDeltaStorage, S3DeltaStorage}
-import com.advancedtelematic.treehub.http.{TreeHubRoutes, Http => TreeHubHttp}
+import com.advancedtelematic.treehub.http.TreeHubRoutes
 import com.advancedtelematic.treehub.object_store.{LocalFsBlobStore, ObjectStore, S3BlobStore}
 import com.advancedtelematic.treehub.repo_metrics.UsageMetricsRouter
-
 
 object Boot extends BootApp with Directives with Settings with VersionInfo
   with BootMigrations
@@ -35,8 +33,7 @@ object Boot extends BootApp with Directives with Settings with VersionInfo
 
   val deviceRegistry = new DeviceRegistryHttpClient(deviceRegistryUri, deviceRegistryMyApi)
 
-  val namespaceExtractor = TreeHubHttp.extractNamespace.map(_.namespace.get).map(Namespace.apply)
-  val deviceNamespace = TreeHubHttp.deviceNamespace(deviceRegistry)
+  val namespaceExtractor = NamespaceDirectives.defaultNamespaceExtractor
 
   lazy val objectStorage = {
     if(useS3) {
@@ -74,7 +71,6 @@ object Boot extends BootApp with Directives with Settings with VersionInfo
         tracing.traceRequests { _ =>
           new TreeHubRoutes(
             namespaceExtractor,
-            deviceNamespace,
             msgPublisher,
             objectStore,
             deltaStorage,
