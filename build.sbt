@@ -4,12 +4,6 @@ scalaVersion := "2.12.8"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
-resolvers += "ATS Releases" at "https://nexus.ota.here.com/content/repositories/releases"
-
-resolvers += "ATS Snapshots" at "https://nexus.ota.here.com/content/repositories/snapshots"
-
-resolvers += "commons-logging-empty" at "https://version99.qos.ch"
-
 def itFilter(name: String): Boolean = name endsWith "IntegrationSpec"
 
 def unitFilter(name: String): Boolean = !itFilter(name)
@@ -28,10 +22,10 @@ lazy val root = (project in file("."))
   .settings(testOptions in IntegrationTest := Seq(Tests.Filter(itFilter)))
   .settings(sonarSettings)
   .settings(Seq(libraryDependencies ++= {
-    val akkaV = "2.5.25"
-    val akkaHttpV = "10.1.10"
+    val akkaV = "2.6.5"
+    val akkaHttpV = "10.1.12"
     val scalaTestV = "3.0.8"
-    val libatsV = "0.3.0-109-ge12f057"
+    val libatsV = "0.4.0-21-g0e8d408"
 
     Seq(
       "com.typesafe.akka" %% "akka-actor" % akkaV,
@@ -45,17 +39,16 @@ lazy val root = (project in file("."))
       "ch.qos.logback" % "logback-classic" % "1.2.3",
       "org.slf4j" % "slf4j-api" % "1.7.25",
 
-      "com.advancedtelematic" %% "libats" % libatsV,
-      "com.advancedtelematic" %% "libats-http" % libatsV,
-      "com.advancedtelematic" %% "libats-http-tracing" % libatsV,
-      "com.advancedtelematic" %% "libats-messaging" % libatsV,
-      "com.advancedtelematic" %% "libats-messaging-datatype" % libatsV,
-      "com.advancedtelematic" %% "libats-auth" % libatsV,
-      "com.advancedtelematic" %% "libats-slick" % libatsV,
-      "com.advancedtelematic" %% "libats-metrics-akka" % libatsV,
-      "com.advancedtelematic" %% "libats-metrics-prometheus" % libatsV,
-      "com.advancedtelematic" %% "libats-logging" % libatsV,
-      "com.advancedtelematic" %% "libats-logging" % libatsV,
+      "io.github.uptane" %% "libats" % libatsV,
+      "io.github.uptane" %% "libats-http" % libatsV,
+      "io.github.uptane" %% "libats-http-tracing" % libatsV,
+      "io.github.uptane" %% "libats-messaging" % libatsV,
+      "io.github.uptane" %% "libats-messaging-datatype" % libatsV,
+      "io.github.uptane" %% "libats-slick" % libatsV,
+      "io.github.uptane" %% "libats-metrics-akka" % libatsV,
+      "io.github.uptane" %% "libats-metrics-prometheus" % libatsV,
+      "io.github.uptane" %% "libats-logging" % libatsV,
+      "io.github.uptane" %% "libats-logging" % libatsV,
 
       "org.scala-lang.modules" %% "scala-async" % "0.9.6",
       "org.mariadb.jdbc" % "mariadb-java-client" % "1.4.4",

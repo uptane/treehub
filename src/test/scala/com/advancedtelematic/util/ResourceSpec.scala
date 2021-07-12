@@ -14,16 +14,16 @@ import com.advancedtelematic.treehub.object_store.{LocalFsBlobStore, ObjectStore
 import com.advancedtelematic.treehub.repo_metrics.UsageMetricsRouter.{UpdateBandwidth, UpdateStorage}
 import com.advancedtelematic.util.FakeUsageUpdate.{CurrentBandwith, CurrentStorage}
 import eu.timepit.refined.api.Refined
-import java.nio.file.Files
 
+import java.nio.file.Files
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import org.scalatest.Suite
 
 import scala.util.Random
 import cats.syntax.either._
-import com.advancedtelematic.libats.auth.NamespaceDirectives
 import com.advancedtelematic.libats.data.DataType.Namespace
+import com.advancedtelematic.libats.http.NamespaceDirectives
 import com.advancedtelematic.libats.messaging.test.MockMessageBus
 import com.advancedtelematic.libats.messaging_datatype.DataType.Commit
 import com.advancedtelematic.libats.test.DatabaseSpec
@@ -87,7 +87,7 @@ trait ResourceSpec extends ScalatestRouteTest with DatabaseSpec with Settings {
   def apiUri(path: String): String = "/api/v2/" + path
   def apiUri(version: Int, path: String): String = s"/api/v$version/" + path
 
-  lazy val namespaceExtractor = NamespaceDirectives.defaultNamespaceExtractor.map(_.namespace)
+  lazy val namespaceExtractor = NamespaceDirectives.defaultNamespaceExtractor
 
   val localFsBlobStore = new LocalFsBlobStore(Files.createTempDirectory("treehub-obj"))
 
@@ -100,7 +100,6 @@ trait ResourceSpec extends ScalatestRouteTest with DatabaseSpec with Settings {
   lazy val messageBus = new MockMessageBus()
 
   lazy val routes = new TreeHubRoutes(
-    namespaceExtractor,
     namespaceExtractor,
     messageBus,
     objectStore,

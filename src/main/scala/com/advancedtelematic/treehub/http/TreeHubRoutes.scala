@@ -20,7 +20,6 @@ import slick.jdbc.MySQLProfile.api._
 import scala.concurrent.ExecutionContext
 
 class TreeHubRoutes(namespaceExtractor: Directive1[Namespace],
-                    deviceNamespace: Directive1[Namespace],
                     messageBus: MessageBusPublisher,
                     objectStore: ObjectStore,
                     deltaStorage: StaticDeltaStorage,
@@ -47,10 +46,7 @@ class TreeHubRoutes(namespaceExtractor: Directive1[Namespace],
       ErrorHandler.handleErrors {
         treehubExceptionHandler {
           pathPrefix("api" / "v2") {
-            allRoutes(namespaceExtractor) ~
-              pathPrefix("mydevice") {
-                allRoutes(deviceNamespace)
-              }
+            allRoutes(namespaceExtractor)
           } ~
             pathPrefix("api" / "v3") {
               allRoutes(namespaceExtractor)
