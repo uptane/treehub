@@ -1,5 +1,6 @@
 package com.advancedtelematic.treehub.http
 
+import akka.Done
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.util.FastFuture
@@ -28,6 +29,8 @@ class TreehubRoutesSpec extends TreeHubSpec with ResourceSpec {
     override def readFull(namespace: DataType.Namespace, id: ObjectId): Future[ByteString] = ???
 
     override def exists(namespace: DataType.Namespace, id: ObjectId): Future[Boolean] = FastFuture.failed(new SdkClientException("Timeout on waiting"))
+
+    override def deleteObject(ns: DataType.Namespace, objectId: ObjectId): Future[Done] = FastFuture.failed(new RuntimeException("[test] delete failed"))
   }
 
   val errorObjectStore = new ObjectStore(errorBlobStore)

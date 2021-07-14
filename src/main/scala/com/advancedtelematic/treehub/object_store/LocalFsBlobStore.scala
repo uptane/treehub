@@ -1,8 +1,9 @@
 package com.advancedtelematic.treehub.object_store
 
+import akka.Done
+
 import java.nio.file.StandardOpenOption.{CREATE, READ, WRITE}
 import java.nio.file.{Files, Path}
-
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.util.FastFuture
 import akka.stream.Materializer
@@ -15,7 +16,6 @@ import org.slf4j.LoggerFactory
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
-
 
 object LocalFsBlobStore {
   private val _log = LoggerFactory.getLogger(this.getClass)
@@ -92,4 +92,13 @@ class LocalFsBlobStore(root: Path)(implicit ec: ExecutionContext, mat: Materiali
   }
 
   override val supportsOutOfBandStorage: Boolean = false
+
+  override def deleteObject(ns: Namespace, objectId: ObjectId): Future[Done] = {
+    val f = Try {
+      Files.delete(objectId.path(namespacePath(ns)))
+      Done
+    }
+
+    Future.fromTry(f)
+  }
 }

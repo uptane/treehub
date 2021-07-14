@@ -1,11 +1,12 @@
 package com.advancedtelematic.treehub.object_store
 
+import akka.Done
+
 import java.io.File
 import java.nio.file.Paths
 import java.time.temporal.ChronoUnit
 import java.time.{Duration, Instant}
 import java.util.Date
-
 import akka.http.scaladsl.model.headers.Location
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes, Uri}
 import akka.stream.Materializer
@@ -144,6 +145,14 @@ class S3BlobStore(s3Credentials: S3Credentials, s3client: AmazonS3, allowRedirec
     objectId.path(Paths.get(namespaceDir(namespace))).toString
 
   override val supportsOutOfBandStorage: Boolean = true
+
+  override def deleteObject(ns: Namespace, objectId: ObjectId): Future[Done] =
+    Future {
+      blocking {
+        s3client.deleteObject(bucketId, objectFilename(ns, objectId))
+        Done
+      }
+    }
 }
 
 object S3Client {
