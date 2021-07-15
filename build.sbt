@@ -37,7 +37,7 @@ lazy val root = (project in file("."))
       "org.scalatest"     %% "scalatest" % scalaTestV % "test,it",
 
       "ch.qos.logback" % "logback-classic" % "1.2.3",
-      "org.slf4j" % "slf4j-api" % "1.7.25",
+      "org.slf4j" % "slf4j-api" % "1.7.31",
 
       "io.github.uptane" %% "libats" % libatsV,
       "io.github.uptane" %% "libats-http" % libatsV,
