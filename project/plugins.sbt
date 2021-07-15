@@ -8,7 +8,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "1.0.1")
 
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.10")
 
-addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "1.3.3")
+addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "3.1.3")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-license-report" % "1.2.0")
 
