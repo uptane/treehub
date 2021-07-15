@@ -22,7 +22,7 @@ lazy val root = (project in file("."))
   .settings(testOptions in IntegrationTest := Seq(Tests.Filter(itFilter)))
   .settings(sonarSettings)
   .settings(Seq(libraryDependencies ++= {
-    val akkaV = "2.6.5"
+    val akkaV = "2.6.15"
     val akkaHttpV = "10.1.12"
     val scalaTestV = "3.0.8"
     val libatsV = "0.4.0-21-g0e8d408"
