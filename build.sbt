@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
   .settings(Seq(libraryDependencies ++= {
     val akkaV = "2.6.5"
     val akkaHttpV = "10.1.12"
-    val scalaTestV = "3.0.8"
+    val scalaTestV = "3.0.9"
     val libatsV = "0.4.0-21-g0e8d408"
 
     Seq(
