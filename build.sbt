@@ -25,7 +25,7 @@ lazy val treehub = (project in file("."))
     val akkaV = "2.6.5"
     val akkaHttpV = "10.1.12"
     val scalaTestV = "3.0.9"
-    val libatsV = "0.4.0-21-g0e8d408"
+    val libatsV = "0.4.0-40-g84a90d0"
 
     Seq(
       "com.typesafe.akka" %% "akka-actor" % akkaV,
