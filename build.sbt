@@ -12,7 +12,7 @@ lazy val ItTest = config("it").extend(Test)
 
 lazy val UnitTest = config("ut").extend(Test)
 
-lazy val root = (project in file("."))
+lazy val treehub = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .configs(ItTest)
   .settings(inConfig(ItTest)(Defaults.testTasks): _*)
@@ -86,15 +86,9 @@ dockerCommands := Seq(
   Cmd("USER", "daemon")
 )
 
-enablePlugins(JavaAppPackaging)
-
-Revolver.settings
+enablePlugins(JavaAppPackaging, GitVersioning)
 
 Versioning.settings
-
-Release.settings
-
-enablePlugins(Versioning.Plugin)
 
 lazy val sonarSettings = Seq(
   sonarProperties ++= Map(
