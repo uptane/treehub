@@ -1,6 +1,6 @@
 name := "treehub"
 organization := "com.advancedtelematic.com"
-scalaVersion := "2.12.14"
+scalaVersion := "2.13.6"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
