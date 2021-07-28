@@ -1,6 +1,6 @@
 name := "treehub"
 organization := "com.advancedtelematic.com"
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.14"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
@@ -12,7 +12,7 @@ lazy val ItTest = config("it").extend(Test)
 
 lazy val UnitTest = config("ut").extend(Test)
 
-lazy val root = (project in file("."))
+lazy val treehub = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .configs(ItTest)
   .settings(inConfig(ItTest)(Defaults.testTasks): _*)
@@ -36,8 +36,8 @@ lazy val root = (project in file("."))
       "com.typesafe.akka" %% "akka-slf4j" % akkaV,
       "org.scalatest"     %% "scalatest" % scalaTestV % "test,it",
 
-      "ch.qos.logback" % "logback-classic" % "1.2.3",
-      "org.slf4j" % "slf4j-api" % "1.7.25",
+      "ch.qos.logback" % "logback-classic" % "1.2.5",
+      "org.slf4j" % "slf4j-api" % "1.7.32",
 
       "io.github.uptane" %% "libats" % libatsV,
       "io.github.uptane" %% "libats-http" % libatsV,
@@ -51,9 +51,9 @@ lazy val root = (project in file("."))
       "io.github.uptane" %% "libats-logging" % libatsV,
 
       "org.scala-lang.modules" %% "scala-async" % "0.9.6",
-      "org.mariadb.jdbc" % "mariadb-java-client" % "1.4.4",
+      "org.mariadb.jdbc" % "mariadb-java-client" % "1.4.6",
 
-      "com.amazonaws" % "aws-java-sdk-s3" % "1.11.86"
+      "com.amazonaws" % "aws-java-sdk-s3" % "1.11.1034"
     )
   }))
 
@@ -86,15 +86,9 @@ dockerCommands := Seq(
   Cmd("USER", "daemon")
 )
 
-enablePlugins(JavaAppPackaging)
-
-Revolver.settings
+enablePlugins(JavaAppPackaging, GitVersioning)
 
 Versioning.settings
-
-Release.settings
-
-enablePlugins(Versioning.Plugin)
 
 lazy val sonarSettings = Seq(
   sonarProperties ++= Map(
