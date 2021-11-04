@@ -23,7 +23,7 @@ lazy val treehub = (project in file("."))
   .settings(sonarSettings)
   .settings(Seq(libraryDependencies ++= {
     val akkaV = "2.6.5"
-    val akkaHttpV = "10.1.12"
+    val akkaHttpV = "10.1.14"
     val scalaTestV = "3.0.9"
     val libatsV = "0.4.0-21-g0e8d408"
 
