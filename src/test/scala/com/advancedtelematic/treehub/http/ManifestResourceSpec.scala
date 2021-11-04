@@ -1,14 +1,13 @@
 package com.advancedtelematic.treehub.http
 
 import java.nio.file.Paths
-
 import akka.http.scaladsl.model.StatusCodes
 import cats.syntax.either._
 import com.advancedtelematic.libats.messaging_datatype.Messages.CommitManifestUpdated
-import com.advancedtelematic.libats.test.{DatabaseSpec, LongTest}
+import com.advancedtelematic.libats.test.LongTest
 import com.advancedtelematic.treehub.db.ManifestRepositorySupport
 import com.advancedtelematic.util.ResourceSpec.ClientTObject
-import com.advancedtelematic.util.{ResourceSpec, TreeHubSpec}
+import com.advancedtelematic.util.{DatabaseSpec, ResourceSpec, TreeHubSpec}
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import io.circe.Json
 import io.circe.syntax._
