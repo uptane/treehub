@@ -9,7 +9,7 @@ import akka.stream.ActorMaterializer
 import akka.util.ByteString
 import com.advancedtelematic.libats.data.DataType
 import com.advancedtelematic.libats.http.{DefaultRejectionHandler, ErrorHandler}
-import com.advancedtelematic.libats.test.LongTest
+import com.advancedtelematic.util.LongTest
 import com.advancedtelematic.treehub.object_store.{ObjectStore, S3BlobStore}
 import com.advancedtelematic.util.ResourceSpec.ClientTObject
 import com.advancedtelematic.util.{DatabaseSpec, FakeUsageUpdate, TreeHubSpec}

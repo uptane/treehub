@@ -5,10 +5,9 @@ import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import akka.actor.{ActorRef, ActorSystem, PoisonPill}
-import akka.stream.ActorMaterializer
 import akka.testkit.{ImplicitSender, TestKitBase}
 import com.advancedtelematic.data.DataType.{ObjectStatus, TObject}
-import com.advancedtelematic.libats.test.LongTest
+import com.advancedtelematic.util.LongTest
 import com.advancedtelematic.treehub.daemon.StaleObjectArchiveActor.{Done, Tick}
 import com.advancedtelematic.treehub.db.{ArchivedObjectRepositorySupport, ObjectRepositorySupport}
 import com.advancedtelematic.treehub.http.Errors
