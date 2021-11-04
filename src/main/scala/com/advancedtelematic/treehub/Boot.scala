@@ -79,5 +79,5 @@ object Boot extends BootApp with Directives with Settings with VersionInfo
         }
     }
 
-  Http().bindAndHandle(routes, host, port)
+  Http().newServerAt(host, port).bindFlow(routes)
 }
