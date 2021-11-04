@@ -1,6 +1,6 @@
 name := "treehub"
 organization := "com.advancedtelematic.com"
-scalaVersion := "2.12.14"
+scalaVersion := "2.12.15"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
@@ -23,8 +23,8 @@ lazy val treehub = (project in file("."))
   .settings(sonarSettings)
   .settings(Seq(libraryDependencies ++= {
     val akkaV = "2.6.5"
-    val akkaHttpV = "10.1.12"
-    val scalaTestV = "3.2.10"
+    val akkaHttpV = "10.1.14"
+    val scalaTestV = "3.0.9"
     val libatsV = "0.4.0-21-g0e8d408"
 
     Seq(
@@ -36,7 +36,7 @@ lazy val treehub = (project in file("."))
       "com.typesafe.akka" %% "akka-slf4j" % akkaV,
       "org.scalatest"     %% "scalatest" % scalaTestV % "test,it",
 
-      "ch.qos.logback" % "logback-classic" % "1.2.5",
+      "ch.qos.logback" % "logback-classic" % "1.2.6",
       "org.slf4j" % "slf4j-api" % "1.7.32",
 
       "io.github.uptane" %% "libats" % libatsV,
@@ -51,9 +51,9 @@ lazy val treehub = (project in file("."))
       "io.github.uptane" %% "libats-logging" % libatsV,
 
       "org.scala-lang.modules" %% "scala-async" % "0.9.6",
-      "org.mariadb.jdbc" % "mariadb-java-client" % "1.8.0",
+      "org.mariadb.jdbc" % "mariadb-java-client" % "2.7.4",
 
-      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.34"
+      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.102"
     )
   }))
 
