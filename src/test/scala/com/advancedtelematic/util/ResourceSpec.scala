@@ -1,9 +1,11 @@
 package com.advancedtelematic.util
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
+import akka.testkit.TestDuration
+import scala.concurrent.duration._
+import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import akka.http.scaladsl.model.Multipart.FormData.BodyPart
 import akka.http.scaladsl.model.{HttpEntity, MediaTypes, Multipart}
-
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.advancedtelematic.common.DigestCalculator
 import com.advancedtelematic.data.DataType.{Commit, ObjectId}
@@ -77,6 +79,11 @@ class FakeUsageUpdate extends Actor with ActorLogging {
     case CurrentBandwith(objectId) =>
       sender ! bandwidthUsages.getOrElse(objectId, 0l)
   }
+}
+
+trait LongHttpRequest {
+  implicit def default(implicit system: ActorSystem) =
+    RouteTestTimeout(15.seconds.dilated(system))
 }
 
 trait ResourceSpec extends ScalatestRouteTest with DatabaseSpec with Settings {

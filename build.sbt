@@ -58,10 +58,6 @@ lazy val treehub = (project in file("."))
 
 Compile / mainClass := Some("com.advancedtelematic.treehub.Boot")
 
-buildInfoOptions += BuildInfoOption.ToMap
-
-buildInfoOptions += BuildInfoOption.BuildTime
-
 import com.typesafe.sbt.packager.docker._
 
 dockerRepository := Some("advancedtelematic")
