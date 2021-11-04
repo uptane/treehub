@@ -22,8 +22,8 @@ lazy val treehub = (project in file("."))
   .settings(testOptions in IntegrationTest := Seq(Tests.Filter(itFilter)))
   .settings(sonarSettings)
   .settings(Seq(libraryDependencies ++= {
-    val akkaV = "2.6.5"
-    val akkaHttpV = "10.2.7"
+    val akkaV = "2.6.17"
+    val akkaHttpV = "10.1.14"
     val scalaTestV = "3.0.9"
     val libatsV = "0.4.0-21-g0e8d408"
 
