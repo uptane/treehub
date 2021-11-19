@@ -22,7 +22,7 @@ lazy val treehub = (project in file("."))
   .settings(IntegrationTest / testOptions := Seq(Tests.Filter(itFilter)))
   .settings(Seq(libraryDependencies ++= {
     val akkaV = "2.6.17"
-    val akkaHttpV = "10.2.6"
+    val akkaHttpV = "10.2.7"
     val scalaTestV = "3.0.9"
     val libatsV = "2.0.3"
 
@@ -52,7 +52,7 @@ lazy val treehub = (project in file("."))
       "org.scala-lang.modules" %% "scala-async" % "0.9.6",
       "org.mariadb.jdbc" % "mariadb-java-client" % "2.7.4",
 
-      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.102"
+      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.106"
     )
   }))
 
@@ -70,16 +70,9 @@ dockerAliases ++= Seq(dockerAlias.value.withTag(git.gitHeadCommit.value))
 
 Docker / defaultLinuxInstallLocation := s"/opt/${moduleName.value}"
 
-dockerCommands := Seq(
-  Cmd("FROM", "advancedtelematic/alpine-jre:adoptopenjdk-jre8u262-b10"),
-  ExecCmd("RUN", "mkdir", "-p", s"/var/log/${moduleName.value}"),
-  Cmd("ADD", "opt /opt"),
-  Cmd("WORKDIR", s"/opt/${moduleName.value}"),
-  ExecCmd("ENTRYPOINT", s"/opt/${moduleName.value}/bin/${moduleName.value}"),
-  Cmd("RUN", s"chown -R daemon:daemon /opt/${moduleName.value}"),
-  Cmd("RUN", s"chown -R daemon:daemon /var/log/${moduleName.value}"),
-  Cmd("USER", "daemon")
-)
+dockerBaseImage := "advancedtelematic/alpine-jre:adoptopenjdk-jre8u262-b10"
+
+Docker / daemonUser := "daemon"
 
 enablePlugins(JavaAppPackaging, GitVersioning, BuildInfoPlugin)
 
