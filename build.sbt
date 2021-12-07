@@ -23,8 +23,8 @@ lazy val treehub = (project in file("."))
   .settings(Seq(libraryDependencies ++= {
     val akkaV = "2.6.17"
     val akkaHttpV = "10.2.7"
-    val scalaTestV = "3.2.10"
-    val libatsV = "2.0.5"
+    val scalaTestV = "3.0.9"
+    val libatsV = "2.0.6"
 
     Seq(
       "com.typesafe.akka" %% "akka-actor" % akkaV,
@@ -52,7 +52,7 @@ lazy val treehub = (project in file("."))
       "org.scala-lang.modules" %% "scala-async" % "0.9.6",
       "org.mariadb.jdbc" % "mariadb-java-client" % "2.7.4",
 
-      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.123"
+      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.126"
     )
   }))
 
