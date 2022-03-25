@@ -52,7 +52,7 @@ lazy val treehub = (project in file("."))
       "org.scala-lang.modules" %% "scala-async" % "0.9.6",
       "org.mariadb.jdbc" % "mariadb-java-client" % "3.0.4",
 
-      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.185"
+      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.186"
     )
   }))
 
