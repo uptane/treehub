@@ -21,8 +21,8 @@ lazy val treehub = (project in file("."))
   .settings(UnitTest / testOptions := Seq(Tests.Filter(unitFilter)))
   .settings(IntegrationTest / testOptions := Seq(Tests.Filter(itFilter)))
   .settings(Seq(libraryDependencies ++= {
-    val akkaV = "2.6.18"
-    val akkaHttpV = "10.2.8"
+    val akkaV = "2.6.19"
+    val akkaHttpV = "10.2.9"
     val scalaTestV = "3.0.9"
     val libatsV = "2.0.10"
 
@@ -35,7 +35,7 @@ lazy val treehub = (project in file("."))
       "com.typesafe.akka" %% "akka-slf4j" % akkaV,
       "org.scalatest"     %% "scalatest" % scalaTestV % "test,it",
 
-      "ch.qos.logback" % "logback-classic" % "1.2.10",
+      "ch.qos.logback" % "logback-classic" % "1.2.11",
       "org.slf4j" % "slf4j-api" % "1.7.36",
 
       "io.github.uptane" %% "libats" % libatsV,
@@ -50,9 +50,9 @@ lazy val treehub = (project in file("."))
       "io.github.uptane" %% "libats-logging" % libatsV,
 
       "org.scala-lang.modules" %% "scala-async" % "0.9.6",
-      "org.mariadb.jdbc" % "mariadb-java-client" % "2.7.5",
+      "org.mariadb.jdbc" % "mariadb-java-client" % "3.0.4",
 
-      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.160"
+      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.218"
     )
   }))
 
