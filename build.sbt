@@ -70,7 +70,7 @@ dockerAliases ++= Seq(dockerAlias.value.withTag(git.gitHeadCommit.value))
 
 Docker / defaultLinuxInstallLocation := s"/opt/${moduleName.value}"
 
-dockerBaseImage := "advancedtelematic/alpine-jre:adoptopenjdk-jre8u262-b10"
+dockerBaseImage := "eclipse-temurin:17.0.3_7-jre-jammy"
 
 Docker / daemonUser := "daemon"
 
