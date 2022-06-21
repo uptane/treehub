@@ -220,8 +220,6 @@ class ObjectResourceSpec extends TreeHubSpec with ResourceSpec with LongHttpRequ
     }
   }
 
-  // There is a bug in mariadb-connector-j 3.x, this test fails for 3.x and passes for 2.x
-  // See https://toradex.atlassian.net/browse/OTA-1136
   test("returns 404 if commit doesn't exist, with a uuid as namespace") {
     val obj = new ClientTObject()
 
