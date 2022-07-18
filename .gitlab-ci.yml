@@ -1,7 +1,7 @@
 stages:
   - test
   - build image
-#  - deploy
+  - deploy
 
 variables:
   DOCKER_TLS_CERTDIR: ""
@@ -14,15 +14,15 @@ variables:
   SBT_OPTS: "-sbt-launch-dir .sbt/launchers -sbt-dir .sbt -ivy .ivy2 -Dsbt.color=true -Dscala.color=true"
   SERVICE: treehub
 
-image: harbor-dev.int.toradex.com/ota-docker-dev-horw/tdx-inno-ci-scala:jvm17-0.0.4
+image: registry.gitlab.com/torizon-platform/ci-container-build:scala-jvm17-0.0.5
 
 include:
   - project: torizon-platform/ci-container-build
     file: gitlab-ci-templates/gitlab-sbt-docker-publish.yaml
-    ref: faeea4b1aa43ef4f6f2fbbbb4f72bcecaa0c94ad
-  # - project: 'rd/platform/deploy-env'
-  #   ref: master
-  #   file: '/gitlab/deploy-core-service.yml'
+    ref: master
+  - project: 'torizon-platform/deploy-env'
+    ref: master
+    file: '/gitlab/deploy-core-service.yml'
 
 services:
   - name: docker:dind
@@ -43,11 +43,9 @@ default:
 
 test:
   stage: test
-  only:
-    refs:
-      - master
-      - branches
-      - merge_requests
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "master"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   variables:
     DB_URL: "jdbc:mariadb://db:3306/ota_treehub"
   before_script:
@@ -55,14 +53,13 @@ test:
     - until mysqladmin ping --protocol=TCP -h db -P 3306 -u root -proot; do echo waiting for mysql; sleep 1; done
     - mysql -v -h db -u root -proot < db_user.sql
   script:
-    - sbt -J-Xmx1G -J-XX:MaxPermSize=256m -J-XX:ReservedCodeCacheSize=128m ut:test
+    - sbt ut:test
 
 build docker image:
   stage: build image
-  only:
-    refs:
-      - master
-      - merge_requests
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "master"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   extends: .sbt-docker-publish
   variables:
     SERVICE_NAME: treehub
