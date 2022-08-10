@@ -24,7 +24,7 @@ lazy val treehub = (project in file("."))
     val akkaV = "2.6.19"
     val akkaHttpV = "10.2.9"
     val scalaTestV = "3.0.9"
-    val libatsV = "2.0.10"
+    val libatsV = "2.0.11"
 
     Seq(
       "com.typesafe.akka" %% "akka-actor" % akkaV,
@@ -50,9 +50,9 @@ lazy val treehub = (project in file("."))
       "io.github.uptane" %% "libats-logging" % libatsV,
 
       "org.scala-lang.modules" %% "scala-async" % "0.9.6",
-      "org.mariadb.jdbc" % "mariadb-java-client" % "3.0.6",
+      "org.mariadb.jdbc" % "mariadb-java-client" % "3.0.7",
 
-      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.256"
+      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.276"
     )
   }))
 
