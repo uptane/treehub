@@ -35,7 +35,7 @@ lazy val treehub = (project in file("."))
       "com.typesafe.akka" %% "akka-slf4j" % akkaV,
       "org.scalatest"     %% "scalatest" % scalaTestV % "test,it",
 
-      "ch.qos.logback" % "logback-classic" % "1.2.11",
+      "ch.qos.logback" % "logback-classic" % "1.4.0",
       "org.slf4j" % "slf4j-api" % "1.7.36",
 
       "io.github.uptane" %% "libats" % libatsV,
@@ -52,7 +52,7 @@ lazy val treehub = (project in file("."))
       "org.scala-lang.modules" %% "scala-async" % "0.9.6",
       "org.mariadb.jdbc" % "mariadb-java-client" % "3.0.7",
 
-      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.286"
+      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.292"
     )
   }))
 
