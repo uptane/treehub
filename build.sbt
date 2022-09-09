@@ -21,7 +21,7 @@ lazy val treehub = (project in file("."))
   .settings(UnitTest / testOptions := Seq(Tests.Filter(unitFilter)))
   .settings(IntegrationTest / testOptions := Seq(Tests.Filter(itFilter)))
   .settings(Seq(libraryDependencies ++= {
-    val akkaV = "2.6.19"
+    val akkaV = "2.6.20"
     val akkaHttpV = "10.2.9"
     val scalaTestV = "3.0.9"
     val libatsV = "2.0.11"
@@ -52,7 +52,7 @@ lazy val treehub = (project in file("."))
       "org.scala-lang.modules" %% "scala-async" % "0.9.6",
       "org.mariadb.jdbc" % "mariadb-java-client" % "3.0.7",
 
-      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.296"
+      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.297"
     )
   }))
 
