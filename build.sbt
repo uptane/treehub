@@ -35,7 +35,7 @@ lazy val treehub = (project in file("."))
       "com.typesafe.akka" %% "akka-slf4j" % akkaV,
       "org.scalatest"     %% "scalatest" % scalaTestV % "test,it",
 
-      "ch.qos.logback" % "logback-classic" % "1.4.1",
+      "ch.qos.logback" % "logback-classic" % "1.4.4",
       "org.slf4j" % "slf4j-api" % "2.0.0",
 
       "io.github.uptane" %% "libats" % libatsV,
