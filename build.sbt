@@ -50,7 +50,7 @@ lazy val treehub = (project in file("."))
       "io.github.uptane" %% "libats-logging" % libatsV,
 
       "org.scala-lang.modules" %% "scala-async" % "0.9.6",
-      "org.mariadb.jdbc" % "mariadb-java-client" % "3.0.9",
+      "org.mariadb.jdbc" % "mariadb-java-client" % "3.1.0",
 
       "com.amazonaws" % "aws-java-sdk-s3" % "1.12.340"
     )
