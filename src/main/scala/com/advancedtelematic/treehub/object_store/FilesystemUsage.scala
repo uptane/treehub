@@ -5,7 +5,6 @@ import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
 import java.util.function.BiFunction
 
 import com.advancedtelematic.data.DataType.ObjectId
-import eu.timepit.refined.boolean.Xor
 import org.slf4j.LoggerFactory
 
 import scala.util.Try
@@ -15,7 +14,7 @@ object FilesystemUsage {
   private val _log = LoggerFactory.getLogger(this.getClass)
 
   def usageByObject(path: Path): Try[Map[ObjectId, Long]] = {
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters.*
     val usage = new java.util.concurrent.ConcurrentHashMap[ObjectId, Long]()
 
     Try {

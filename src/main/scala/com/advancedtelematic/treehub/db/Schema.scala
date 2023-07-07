@@ -21,7 +21,7 @@ object Schema {
     def id = column[ObjectId]("object_id")
     def size = column[Long]("size")
     def status = column[ObjectStatus]("status")
-    def createdAt = column[Instant]("created_at")
+    def createdAt = column[Instant]("created_at")(javaInstantMapping)
 
     def pk = primaryKey("pk_object", (namespace, id))
 
@@ -36,7 +36,7 @@ object Schema {
     def namespace = column[Namespace]("namespace")
     def id = column[ObjectId]("object_id")
     def reason = column[String]("reason")
-    def clientCreatedAt = column[Instant]("client_created_at")
+    def clientCreatedAt = column[Instant]("client_created_at")(javaInstantMapping)
     def size = column[Long]("size")
 
     def pk = primaryKey("pk_archived_object", (namespace, id))

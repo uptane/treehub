@@ -1,8 +1,8 @@
 name := "treehub"
 organization := "io.github.uptane"
-scalaVersion := "2.12.18"
+scalaVersion := "2.13.10"
 
-scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
+scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-Xasync", "-Xsource:3")
 
 def itFilter(name: String): Boolean = name endsWith "IntegrationSpec"
 
@@ -24,7 +24,7 @@ lazy val treehub = (project in file("."))
     val akkaV = "2.6.20"
     val akkaHttpV = "10.2.10"
     val scalaTestV = "3.0.9"
-    val libatsV = "2.0.11"
+    val libatsV = "2.1.1"
 
     Seq(
       "com.typesafe.akka" %% "akka-actor" % akkaV,
@@ -49,12 +49,20 @@ lazy val treehub = (project in file("."))
       "io.github.uptane" %% "libats-logging" % libatsV,
       "io.github.uptane" %% "libats-logging" % libatsV,
 
-      "org.scala-lang.modules" %% "scala-async" % "0.9.6",
+      "org.scala-lang.modules" %% "scala-async" % "1.0.1",
       "org.mariadb.jdbc" % "mariadb-java-client" % "3.1.4",
 
       "com.amazonaws" % "aws-java-sdk-s3" % "1.12.513"
     )
   }))
+
+// build.sbt
+inThisBuild(List(
+  semanticdbEnabled := true,
+  semanticdbOptions += "-P:semanticdb:synthetics:on", // make sure to add this
+  semanticdbVersion := scalafixSemanticdb.revision,
+  scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion("2.13"),
+))
 
 Compile / mainClass := Some("com.advancedtelematic.treehub.Boot")
 

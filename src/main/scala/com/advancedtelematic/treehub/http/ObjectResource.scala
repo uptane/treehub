@@ -76,7 +76,7 @@ class ObjectResource(namespace: Directive1[Namespace],
         complete(objectStore.completeClientUpload(ns, objectId).map(_ => StatusCodes.NoContent))
       } ~
       (post & hintNamespaceStorage(ns)) {
-        (outOfBandStorageEnabled & headerValueByType[OutOfBandStorageHeader](()) & parameter("size".as[Long])) { (_, size) =>
+        (outOfBandStorageEnabled & headerValueByType(OutOfBandStorageHeader) & parameter("size".as[Long])) { (_, size) =>
           onSuccess(objectStore.storeOutOfBand(ns, objectId, size)) { case UploadAt(uri) =>
             redirect(uri, StatusCodes.Found)
           }

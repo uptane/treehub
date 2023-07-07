@@ -155,7 +155,7 @@ class ObjectResourceSpec extends TreeHubSpec with ResourceSpec with LongHttpRequ
 
     val usage = fakeUsageUpdate.ask(CurrentStorage(defaultNs))(1.second).mapTo[Long].futureValue
 
-    usage should be >= 1l
+    usage should be >= 1L
   }
 
   test("GET hints updater to update current bandwidth") {

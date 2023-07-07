@@ -64,7 +64,7 @@ object DataType {
   }
 
   object ObjectId {
-    def from(commit: Commit): ObjectId = ObjectId.parse(commit.value + ".commit").right.get
+    def from(commit: Commit): ObjectId = ObjectId.parse(commit.value + ".commit").toOption.get
 
     def parse(string: String): Either[String, ObjectId] = refineV[ValidObjectId](string)
   }

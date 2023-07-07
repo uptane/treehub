@@ -1,10 +1,9 @@
 package com.advancedtelematic.treehub.daemon
 
 import java.time.Instant
-
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, Props}
-import akka.pattern.{Backoff, BackoffSupervisor}
+import akka.pattern.{Backoff, BackoffOpts, BackoffSupervisor}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Sink}
 import com.advancedtelematic.data.DataType.{ObjectId, ObjectStatus, TObject}
@@ -28,7 +27,7 @@ object StaleObjectArchiveActor {
 
   def withBackOff(blobStore: BlobStore, objectsExpireAfter: java.time.Duration = defaultExpireDuration, autoStart: Boolean = false)
                  (implicit db: Database, mat: Materializer) =
-    BackoffSupervisor.props(Backoff.onFailure(props(blobStore, objectsExpireAfter, autoStart), "stale-obj-worker", 5.seconds, 5.minutes, 0.25))
+    BackoffSupervisor.props(BackoffOpts.onFailure(props(blobStore, objectsExpireAfter, autoStart), "stale-obj-worker", 5.seconds, 5.minutes, 0.25))
 }
 
 class StaleObjectArchiveActor(blobStore: BlobStore, objectsExpireAfter: java.time.Duration, autoStart: Boolean = false)(implicit db: Database, mat: Materializer) extends Actor

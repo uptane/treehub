@@ -100,7 +100,7 @@ class S3BlobStore(s3Credentials: S3Credentials, s3client: AmazonS3, allowRedirec
     Future {
       blocking {
         val s3ObjectInputStream = s3client.getObject(bucketId, filename).getObjectContent
-        StreamConverters.fromInputStream(() ⇒ s3ObjectInputStream)
+        StreamConverters.fromInputStream(() => s3ObjectInputStream)
       }
     }
   }
@@ -119,7 +119,7 @@ class S3BlobStore(s3Credentials: S3Credentials, s3client: AmazonS3, allowRedirec
 
   override def buildResponse(namespace: Namespace, id: ObjectId): Future[HttpResponse] = {
     if(allowRedirects) {
-      fetchPresignedUri(namespace, id).map { uri ⇒
+      fetchPresignedUri(namespace, id).map { uri =>
         HttpResponse(StatusCodes.Found, headers = List(Location(uri)))
       }
     } else

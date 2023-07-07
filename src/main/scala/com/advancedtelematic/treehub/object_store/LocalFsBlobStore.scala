@@ -34,18 +34,15 @@ object LocalFsBlobStore {
 }
 
 class LocalFsBlobStore(root: Path)(implicit ec: ExecutionContext, mat: Materializer) extends BlobStore {
-  def store(ns: Namespace, id: ObjectId, blob: Source[ByteString, _]): Future[(Path, Long)] = {
-    for {
+  def store(ns: Namespace, id: ObjectId, blob: Source[ByteString, ?]): Future[(Path, Long)] = {
+    val io = for {
       path <- Future.fromTry(objectPath(ns, id))
       ioResult <- blob.runWith(FileIO.toPath(path, options = Set(READ, WRITE, CREATE)))
-      res <- {
-        if (ioResult.wasSuccessful) {
-          Future.successful(ioResult.count)
-        } else {
-          Future.failed(BlobStoreError(s"Error storing local blob ${ioResult.getError.getLocalizedMessage}", ioResult.getError))
-        }
-      }
-    } yield path -> res
+    } yield path -> ioResult.count
+
+    io.recoverWith { case ex =>
+      Future.failed(BlobStoreError(s"Error storing local blob ${ex.getLocalizedMessage}", ex))
+    }
   }
 
   override def storeStream(namespace: Namespace, id: ObjectId, size: Long, blob: Source[ByteString, _]): Future[Long] =
