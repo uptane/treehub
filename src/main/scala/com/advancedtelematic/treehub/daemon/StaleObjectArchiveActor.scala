@@ -3,17 +3,17 @@ package com.advancedtelematic.treehub.daemon
 import java.time.Instant
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, Props}
-import akka.pattern.{Backoff, BackoffOpts, BackoffSupervisor}
+import akka.pattern.{BackoffOpts, BackoffSupervisor}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Sink}
 import com.advancedtelematic.data.DataType.{ObjectId, ObjectStatus, TObject}
 import com.advancedtelematic.treehub.daemon.StaleObjectArchiveActor.{Done, Tick}
 import com.advancedtelematic.treehub.db.{ArchivedObjectRepositorySupport, ObjectRepositorySupport}
 import com.advancedtelematic.treehub.object_store.BlobStore
-import slick.jdbc.MySQLProfile.api._
+import slick.jdbc.MySQLProfile.api.*
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 object StaleObjectArchiveActor {
   case object Tick
@@ -38,7 +38,7 @@ class StaleObjectArchiveActor(blobStore: BlobStore, objectsExpireAfter: java.tim
   import akka.pattern.pipe
   import context.dispatcher
 
-  import scala.async.Async._
+  import scala.async.Async.*
 
   private val tickInterval = 5.seconds
 
@@ -51,7 +51,7 @@ class StaleObjectArchiveActor(blobStore: BlobStore, objectsExpireAfter: java.tim
     createdAt.plus(objectsExpireAfter).isBefore(Instant.now)
 
   def completeOrArchive(obj: TObject, createdAt: Instant): Future[ObjectId] = async {
-    val exists = await(blobStore.exists(obj.namespace, obj.id))
+    val exists = await(blobStore.exists(obj.namespace, obj.id.asPrefixedPath))
 
     if(exists) {
       log.info(s"Object ${obj.id} uploaded by client to remote server, marking as completed")

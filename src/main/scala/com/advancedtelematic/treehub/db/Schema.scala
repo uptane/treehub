@@ -1,20 +1,22 @@
 package com.advancedtelematic.treehub.db
 
 import java.time.Instant
-
 import com.advancedtelematic.data.DataType.ObjectStatus.ObjectStatus
 import com.advancedtelematic.libats.data.DataType.Namespace
 import com.advancedtelematic.libats.messaging_datatype.DataType.Commit
-import slick.jdbc.MySQLProfile.api._
+import com.advancedtelematic.libats.slick.codecs.SlickEnumeratum
+import slick.jdbc.MySQLProfile.api.*
 import com.advancedtelematic.libats.slick.db.SlickExtensions.javaInstantMapping
 import io.circe.Json
 import com.advancedtelematic.libats.slick.db.SlickCirceMapper.jsonMapper
 
 object Schema {
-  import com.advancedtelematic.libats.slick.db.SlickAnyVal._
-  import com.advancedtelematic.libats.slick.codecs.SlickRefined._
-  import com.advancedtelematic.data.DataType._
-  import SlickMappings._
+  import com.advancedtelematic.libats.slick.db.SlickAnyVal.*
+  import com.advancedtelematic.libats.slick.codecs.SlickRefined.*
+  import com.advancedtelematic.data.DataType.*
+  import SlickMappings.*
+
+  implicit val staticDeltaStatusMapper  = SlickEnumeratum.enumeratumMapper(StaticDeltaMeta.Status)
 
   class TObjectTable(tag: Tag) extends Table[TObject](tag, "object") {
     def namespace = column[Namespace]("namespace")
@@ -73,4 +75,20 @@ object Schema {
   }
 
   protected[db] val manifests = TableQuery[ManifestTable]
+
+  case class StaticDeltaMetaTable(tag: Tag) extends Table[StaticDeltaMeta](tag, "static_deltas") {
+    def namespace = column[Namespace]("namespace")
+    def id = column[DeltaId]("id")
+    def superblockHash = column[SuperBlockHash]("superblock_hash")
+    def to = column[Commit]("to")
+    def size = column[Long]("size")
+
+    def status = column[StaticDeltaMeta.Status]("status")
+
+    def pk = primaryKey("pk_ref", (namespace, id))
+
+    override def * = (namespace, id, to, superblockHash, size, status) <> ((StaticDeltaMeta.apply _).tupled, StaticDeltaMeta.unapply)
+  }
+
+  protected[db] val staticDeltas = TableQuery[StaticDeltaMetaTable]
 }
