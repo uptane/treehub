@@ -27,7 +27,7 @@ class RefResourceIntegrationSpec extends TreeHubSpec with ResourceSpec with Obje
     val blobBytes = blob.runReduce(_ ++ _).map(_.toArray)
 
     for {
-      commit <- blobBytes.map(Commit.from).map(_.toOption.get)
+      commit <- blobBytes.map(Commit.fromObjectContent).map(_.toOption.get)
       id = ObjectId.from(commit)
       tobj <- objectStore.storeFile(defaultNs, id, file)
         .recover {

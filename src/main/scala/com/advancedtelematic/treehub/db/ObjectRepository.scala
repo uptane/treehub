@@ -44,7 +44,7 @@ protected class ObjectRepository()(implicit db: Database, ec: ExecutionContext) 
       .filter(_.status === ObjectStatus.CLIENT_UPLOADING)
       .map(_.status)
       .update(ObjectStatus.UPLOADED)
-      .handleSingleUpdateError(Errors.ObjectNotFound)
+      .handleSingleUpdateError(Errors.ObjectNotFound(id))
     db.run(io)
   }
 
@@ -52,7 +52,7 @@ protected class ObjectRepository()(implicit db: Database, ec: ExecutionContext) 
     val io = findQuery(namespace, id)
       .map { r => r.size -> r.status }
       .update((size, status))
-      .handleSingleUpdateError(Errors.ObjectNotFound)
+      .handleSingleUpdateError(Errors.ObjectNotFound(id))
     db.run(io)
   }
 
@@ -91,7 +91,7 @@ protected class ObjectRepository()(implicit db: Database, ec: ExecutionContext) 
 
   private def findAction(namespace: Namespace, id: ObjectId): DBIO[TObject] =
     findQuery(namespace, id)
-      .result.failIfNotSingle(Errors.ObjectNotFound)
+      .result.failIfNotSingle(Errors.ObjectNotFound(id))
 }
 
 
