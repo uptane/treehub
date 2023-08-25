@@ -30,4 +30,10 @@ trait Settings {
   lazy val staleObjectExpireAfter = _config.getDuration("storage.staleObjectsExpireAfter")
 
   lazy val allowRedirectsToS3 = _config.getBoolean("storage.s3.allowRedirects")
+
+  lazy val usageMessagesEnabled = if(_config.hasPath("usageMessagesEnabled"))
+    _config.getBoolean("usageMessagesEnabled")
+  else
+    false
+
 }
