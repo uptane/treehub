@@ -6,15 +6,16 @@ import $ivy.`com.lihaoyi::requests:0.8.0`
 import requests.RequestBlob
 import java.security.MessageDigest
 
-def uploadObjects(repo: Path) = {
+def uploadObjects(host: String, ns: String, repo: Path) = {
   os.walk.attrs(repo / "objects").foreach { case (p, attr) =>
     if (attr.isFile) {
       println(p)
 
       val status = requests
         .post(
-          s"http://localhost:9001/api/v3/objects/${p.relativeTo(repo / "objects")}",
+          s"http://$host/api/v3/objects/${p.relativeTo(repo / "objects")}",
           data = p.toIO,
+          headers = List("x-ats-namespace" -> ns),
         )
         .statusCode
 
@@ -23,7 +24,7 @@ def uploadObjects(repo: Path) = {
   }
 }
 
-def uploadDelta(repo: Path, deltaId: RelPath) = {
+def uploadDelta(host: String, ns: String, repo: Path, deltaId: RelPath) = {
   val deltasDir = repo / "deltas"
   val deltaPath = deltasDir / deltaId
 
@@ -46,9 +47,9 @@ def uploadDelta(repo: Path, deltaId: RelPath) = {
 
     val status = requests
       .post(
-        s"http://localhost:9001/api/v3/deltas/${p.relativeTo(deltasDir)}",
+        s"http://$host/api/v3/deltas/${p.relativeTo(deltasDir)}",
         data = p.toIO,
-        headers = List("x-trx-superblock-hash" -> superblockHash)
+        headers = List("x-trx-superblock-hash" -> superblockHash, "x-ats-namespace" -> ns),
       )
       .statusCode
 
@@ -58,10 +59,13 @@ def uploadDelta(repo: Path, deltaId: RelPath) = {
 
 @main
 def main(cmd: String, repopath: String, deltaId: Option[String] = None) = {
+  val host = sys.env.get("TREEHUBCLI_HOST").getOrElse("localhost:9001")
+  val ns = sys.env.get("TREEHUBCLI_NAMESPACE").getOrElse("default")
+
   if (cmd == "objects") {
-    uploadObjects(os.pwd / RelPath(repopath))
+    uploadObjects(host, ns, os.pwd / RelPath(repopath))
   } else if (cmd == "deltas" && deltaId.isDefined) {
-    uploadDelta(os.pwd / RelPath(repopath), RelPath(deltaId.get))
+    uploadDelta(host, ns, os.pwd / RelPath(repopath), RelPath(deltaId.get))
   } else {
     throw new IllegalArgumentException(
       "usage: treehub-cli.sc <objects|delta> <repopath> [delta-id]"
