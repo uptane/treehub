@@ -11,12 +11,23 @@ import akka.pattern.ask
 
 import scala.concurrent.duration.*
 import com.advancedtelematic.common.DigestCalculator
+import com.advancedtelematic.data.ClientDataType.StaticDelta
+import com.advancedtelematic.libats.data.PaginationResult
 import com.advancedtelematic.libats.messaging_datatype.DataType.Commit
 import eu.timepit.refined.api.{RefType, Refined}
+import io.circe.parser.parse
+import org.scalatest.BeforeAndAfterEach
 
 import scala.util.Random
+import slick.jdbc.MySQLProfile.api.*
 
-class DeltaResourceSpec extends TreeHubSpec with ResourceSpec with ObjectRepositorySupport with StaticDeltaMetaRepositorySupport {
+class DeltaResourceSpec extends TreeHubSpec with ResourceSpec with ObjectRepositorySupport with StaticDeltaMetaRepositorySupport with BeforeAndAfterEach {
+
+  override def afterEach(): Unit = {
+    super.afterEach()
+
+    db.run(sqlu"delete from `static_deltas`").futureValue
+  }
 
   implicit class SuperblockHashHeaderExt(value: HttpRequest) {
     def withSuperblockHash()(implicit hash: SuperBlockHash): HttpRequest = {
@@ -57,7 +68,100 @@ class DeltaResourceSpec extends TreeHubSpec with ResourceSpec with ObjectReposit
     }
   }
 
-  test("publishes usage to bus") {
+  test("GET on deltas returns a PaginationResult with a list of deltas") {
+    val deltaId = "_9zK5AbC3B1x0h3yVI8TFWkMFnLdiLwq+46iDf8YFF0-EvMVW0uxJySf4Wwgv6r32Qq4XEJPNxjYCgx0smxHtoo".refineTry[ValidDeltaId].get
+    val blob = "superblock data".getBytes()
+
+    implicit val superBlockHash = RefType.applyRef[SuperBlockHash](DigestCalculator.digest()(new Random().nextString(10))).toOption.get
+
+    Post(apiUri(s"deltas/${deltaId.asPrefixedPath}/superblock"), blob).withSuperblockHash() ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    val expectedDelta = StaticDelta(deltaId.fromCommit, deltaId.toCommit, 15)
+
+    Get(apiUri("deltas")) ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+      val deltas = parse(responseAs[String])
+        .getOrElse(null)
+        .as[PaginationResult[StaticDelta]]
+        .toOption.get
+      deltas.values should have size 1
+      deltas.values shouldBe Seq(expectedDelta)
+
+    }
+  }
+
+  test("GET on deltas can list deltas with custom pagination limit and offset") {
+    implicit val superBlockHash = RefType.applyRef[SuperBlockHash](DigestCalculator.digest()(new Random().nextString(10))).toOption.get
+
+    val deltaId1 = "w+Y9B_ekii24eq3Q82ZvxphDfXxr8VzDmqPziDg5d7Q-cJUJMFVGmog4PkN9VT7hq3ufD9IAfb0oYgzqNpsr2n0".refineTry[ValidDeltaId].get
+    val blob1 = "superblock data 1".getBytes()
+
+    Post(apiUri(s"deltas/${deltaId1.asPrefixedPath}/superblock"), blob1).withSuperblockHash() ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    val deltaId2 = "_QTXv6POPMrlct21tZY0HErJFPDIbspxrOmq+OGjldY-O_yKIJQRSxQWbqKZKHUQ0PlRcbCMfT9PUP1vHGg+Qj0".refineTry[ValidDeltaId].get
+    val blob2 = "superblock data 2".getBytes()
+
+    Post(apiUri(s"deltas/${deltaId2.asPrefixedPath}/superblock"), blob2).withSuperblockHash() ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    val expectedDelta1 = StaticDelta(deltaId1.fromCommit, deltaId1.toCommit, 17)
+    val expectedDelta2 = StaticDelta(deltaId2.fromCommit, deltaId2.toCommit, 17)
+
+    Get(apiUri("deltas")) ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+      val deltas = parse(responseAs[String])
+        .getOrElse(null)
+        .as[PaginationResult[StaticDelta]]
+        .toOption.get
+      deltas.values should have size 2
+      deltas.values shouldBe Seq(expectedDelta2, expectedDelta1)
+
+    }
+
+    Get(apiUri("deltas?limit=1")) ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+      val deltas = parse(responseAs[String])
+        .getOrElse(null)
+        .as[PaginationResult[StaticDelta]]
+        .toOption.get
+      deltas.values should have size 1
+      deltas.values.head shouldBe expectedDelta2
+
+    }
+
+    Get(apiUri("deltas?limit=1&offset=1")) ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+      val deltas = parse(responseAs[String])
+        .getOrElse(null)
+        .as[PaginationResult[StaticDelta]]
+        .toOption.get
+      deltas.values should have size 1
+      deltas.values.head shouldBe expectedDelta1
+
+    }
+  }
+
+  test("GET on deltas with negative limit and offset returns 400 Bad Request") {
+    implicit val superBlockHash = RefType.applyRef[SuperBlockHash](DigestCalculator.digest()(new Random().nextString(10))).toOption.get
+
+    val deltaId = "w+Y9B_ekii24eq3Q82ZvxphDfXxr8VzDmqPziDg5d7Q-cJUJMFVGmog4PkN9VT7hq3ufD9IAfb0oYgzqNpsr2n0".refineTry[ValidDeltaId].get
+    val blob = "superblock data".getBytes()
+
+    Post(apiUri(s"deltas/${deltaId.asPrefixedPath}/superblock"), blob).withSuperblockHash() ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    Get(apiUri("deltas?limit=-1&offset=-1")) ~> routes ~> check {
+      status shouldBe StatusCodes.BadRequest
+    }
+  }
+
+    test("publishes usage to bus") {
     val deltaId = "6qdddbmoaLtYLmZg2Q8OZm7syoxvAOFs0fAXbavojKY-k_F8QpdRP9KlPD6wiS2HNF7WuL1sgfu1tLaJXV6GjIU".refineTry[ValidDeltaId].get
     val blob = "some other data".getBytes
 

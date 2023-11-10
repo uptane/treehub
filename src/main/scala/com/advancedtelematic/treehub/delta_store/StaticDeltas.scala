@@ -4,8 +4,11 @@ import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.util.FastFuture
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
+import com.advancedtelematic.data.ClientDataType.StaticDelta
 import com.advancedtelematic.data.DataType.{DeltaId, DeltaIndexId, StaticDeltaIndex, StaticDeltaMeta, SuperBlockHash}
 import com.advancedtelematic.libats.data.DataType.Namespace
+import com.advancedtelematic.libats.data.PaginationResult
+import com.advancedtelematic.treehub.db.DbOps.PaginationResultOps
 import com.advancedtelematic.treehub.db.StaticDeltaMetaRepositorySupport
 import com.advancedtelematic.treehub.http.Errors
 import com.advancedtelematic.treehub.object_store.BlobStore
@@ -27,6 +30,9 @@ class StaticDeltas(storage: BlobStore)(implicit val db: Database, ec: ExecutionC
         FastFuture.failed(Errors.StaticDeltaNotUploaded)
     }
   }
+
+  def getAll(ns: Namespace, offset: Option[Long] = None, limit: Option[Long] = None): Future[PaginationResult[StaticDelta]] =
+    staticDeltaMetaRepository.findAll(ns, StaticDeltaMeta.Status.Available, offset.orDefaultOffset, limit.orDefaultLimit)
 
   def store(ns: Namespace, deltaId: DeltaId, path: String, data: Source[ByteString, ?], size: Long,
             superblockHash: SuperBlockHash): Future[Unit] = async {
