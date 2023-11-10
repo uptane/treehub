@@ -7,12 +7,12 @@ import com.advancedtelematic.data.GVariantEncoder.*
 import com.advancedtelematic.libats.data.DataType.Namespace
 import com.advancedtelematic.libats.http.RefinedMarshallingSupport.*
 import com.advancedtelematic.libats.messaging_datatype.DataType.Commit
-import com.advancedtelematic.treehub.delta_store.{StaticDeltas}
+import com.advancedtelematic.treehub.delta_store.StaticDeltas
 import com.advancedtelematic.treehub.http.PathMatchers.*
 import com.advancedtelematic.treehub.repo_metrics.UsageMetricsRouter
 import com.advancedtelematic.treehub.repo_metrics.UsageMetricsRouter.UpdateBandwidth
 import eu.timepit.refined.api.RefType
-import eu.timepit.refined.refineV
+import io.circe.syntax.EncoderOps
 import org.slf4j.LoggerFactory
 
 import scala.util.Success
@@ -70,6 +70,10 @@ class DeltaResource(namespace: Directive1[Namespace],
               val deltaId = (from, to).toDeltaId
               val uri = Uri(s"/deltas/${deltaId.asPrefixedPath}")
               complete(HttpResponse(StatusCodes.Found, headers = List(Location(uri))))
+            } ~
+            (pathEnd & parameters(Symbol("offset").as(nonNegativeLong).?, Symbol("limit").as(nonNegativeLong).?)) { (offset, limit) =>
+              val f = staticDeltas.getAll(ns, offset, limit).map(_.asJson.toString())
+              complete(f)
             }
         }
       }

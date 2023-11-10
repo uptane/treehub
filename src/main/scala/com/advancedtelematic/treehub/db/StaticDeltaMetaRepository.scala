@@ -1,7 +1,9 @@
 package com.advancedtelematic.treehub.db
 
+import com.advancedtelematic.data.ClientDataType.StaticDelta
 import com.advancedtelematic.data.DataType.{DeltaId, StaticDeltaMeta, SuperBlockHash}
 import com.advancedtelematic.libats.data.DataType.Namespace
+import com.advancedtelematic.libats.data.PaginationResult
 import com.advancedtelematic.libats.messaging_datatype.DataType.Commit
 import com.advancedtelematic.libats.slick.codecs.SlickRefined.*
 import com.advancedtelematic.libats.slick.db.SlickAnyVal.*
@@ -39,6 +41,21 @@ protected class StaticDeltaMetaRepository()(implicit db: Database, ec: Execution
       .result
       .headOption
       .failIfNone(Errors.StaticDeltaDoesNotExist)
+  }
+
+  def findAll(ns: Namespace, status: StaticDeltaMeta.Status, offset: Long, limit: Long): Future[PaginationResult[StaticDelta]] = db.run {
+    staticDeltas
+      .filter(_.namespace === ns)
+      .filter(_.status === status)
+      .paginateResult(offset, limit)
+      .map { result =>
+        PaginationResult(
+          result.values.map( delta => StaticDelta(delta.id.fromCommit, delta.to, delta.size)),
+          result.total,
+          result.offset,
+          result.limit
+        )
+      }
   }
 
   def findByTo(ns: Namespace, to: Commit, status: StaticDeltaMeta.Status): Future[Seq[StaticDeltaMeta]] = db.run {
