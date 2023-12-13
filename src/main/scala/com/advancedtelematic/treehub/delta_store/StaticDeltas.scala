@@ -4,10 +4,11 @@ import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.util.FastFuture
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import com.advancedtelematic.data.ClientDataType.StaticDelta
+import com.advancedtelematic.data.ClientDataType.{CommitInfo, CommitSize, StaticDelta}
 import com.advancedtelematic.data.DataType.{DeltaId, DeltaIndexId, StaticDeltaIndex, StaticDeltaMeta, SuperBlockHash}
 import com.advancedtelematic.libats.data.DataType.Namespace
 import com.advancedtelematic.libats.data.PaginationResult
+import com.advancedtelematic.libats.messaging_datatype.DataType.Commit
 import com.advancedtelematic.treehub.db.DbOps.PaginationResultOps
 import com.advancedtelematic.treehub.db.StaticDeltaMetaRepositorySupport
 import com.advancedtelematic.treehub.http.Errors
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory
 import slick.jdbc.MySQLProfile.api.*
 
 import scala.async.Async.{async, await}
+import scala.collection.{immutable, mutable}
 import scala.concurrent.{ExecutionContext, Future}
 
 class StaticDeltas(storage: BlobStore)(implicit val db: Database, ec: ExecutionContext) extends StaticDeltaMetaRepositorySupport {
@@ -29,6 +31,32 @@ class StaticDeltas(storage: BlobStore)(implicit val db: Database, ec: ExecutionC
       case _ =>
         FastFuture.failed(Errors.StaticDeltaNotUploaded)
     }
+  }
+
+  def retrieve(ns: Namespace, commits: Seq[Commit]): Future[immutable.Map[String, CommitInfo]] = async {
+    val map = mutable.Map[String, CommitInfo]()
+
+    await(staticDeltaMetaRepository.findAllWithCommits(ns, commits, StaticDeltaMeta.Status.Available))
+      .foreach { delta =>
+        val fromCommit = delta.from
+        val toCommit = delta.to
+
+        if (commits.contains(fromCommit)) {
+          var commitInfo = map.getOrElse(fromCommit.toString(), CommitInfo(Seq(),Seq()))
+          commitInfo = CommitInfo(commitInfo.from, commitInfo.to.appended(CommitSize(toCommit, delta.size)))
+
+          map(fromCommit.toString()) = commitInfo
+        }
+
+        if (commits.contains(toCommit)) {
+          var commitInfo = map.getOrElse(toCommit.toString(), CommitInfo(Seq(), Seq()))
+          commitInfo = CommitInfo(commitInfo.from.appended(CommitSize(fromCommit, delta.size)), commitInfo.to)
+
+          map(toCommit.toString()) = commitInfo
+        }
+      }
+
+    map.toMap
   }
 
   def getAll(ns: Namespace, offset: Option[Long] = None, limit: Option[Long] = None): Future[PaginationResult[StaticDelta]] =
