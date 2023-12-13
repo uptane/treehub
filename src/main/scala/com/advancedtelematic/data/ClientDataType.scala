@@ -14,4 +14,25 @@ object ClientDataType {
     implicit val Encoder: Encoder[StaticDelta] = deriveEncoder[StaticDelta]
     implicit val Decoder: Decoder[StaticDelta] = deriveDecoder[StaticDelta]
   }
+
+  case class CommitInfoRequest(commits: Seq[Commit])
+
+  object CommitInfoRequest {
+    implicit val Encoder: Encoder[CommitInfoRequest] = deriveEncoder[CommitInfoRequest]
+    implicit val Decoder: Decoder[CommitInfoRequest] = deriveDecoder[CommitInfoRequest]
+  }
+
+  case class CommitSize(commit: Commit, size: Long)
+
+  object CommitSize {
+    implicit val Encoder: Encoder[CommitSize] = deriveEncoder[CommitSize]
+    implicit val Decoder: Decoder[CommitSize] = deriveDecoder[CommitSize]
+  }
+
+  case class CommitInfo(from: Seq[CommitSize], to: Seq[CommitSize])
+
+  object CommitInfo {
+    implicit val Encoder: Encoder[CommitInfo] = deriveEncoder[CommitInfo]
+    implicit val Decoder: Decoder[CommitInfo] = deriveDecoder[CommitInfo]
+  }
 }
