@@ -2,6 +2,7 @@ package com.advancedtelematic.treehub.http
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.headers.Location
 import akka.http.scaladsl.server.*
+import com.advancedtelematic.data.ClientDataType.CommitInfoRequest
 import com.advancedtelematic.data.DataType.{CommitTupleOps, DeltaId, SuperBlockHash}
 import com.advancedtelematic.data.GVariantEncoder.*
 import com.advancedtelematic.libats.data.DataType.Namespace
@@ -66,6 +67,14 @@ class DeltaResource(namespace: Directive1[Namespace],
               complete(f)
             }
           } ~
+            post {
+              import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+
+              entity(as[CommitInfoRequest]) { request =>
+                val f = staticDeltas.retrieve(ns, request.commits).map(_.asJson.toString())
+                complete(f)
+              }
+            } ~
             (pathEnd & parameters(Symbol("from").as[Commit], Symbol("to").as[Commit])) { (from, to) =>
               val deltaId = (from, to).toDeltaId
               val uri = Uri(s"/deltas/${deltaId.asPrefixedPath}")
