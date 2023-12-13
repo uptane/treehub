@@ -36,11 +36,12 @@ class StaticDeltas(storage: BlobStore)(implicit val db: Database, ec: ExecutionC
 
   def store(ns: Namespace, deltaId: DeltaId, path: String, data: Source[ByteString, ?], size: Long,
             superblockHash: SuperBlockHash): Future[Unit] = async {
+    val from = deltaId.fromCommit
     val to = deltaId.toCommit
     val objectPath = deltaId.asPrefixedPath.resolve(path)
 
     // Check that either the SDM does not exist or the hash matches
-    await(staticDeltaMetaRepository.persistIfValid(ns, deltaId, to, superblockHash))
+    await(staticDeltaMetaRepository.persistIfValid(ns, deltaId, to, from, superblockHash))
 
     // Upload to s3
     await(storage.storeStream(ns, objectPath, size, data))

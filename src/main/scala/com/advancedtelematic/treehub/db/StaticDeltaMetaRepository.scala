@@ -50,7 +50,7 @@ protected class StaticDeltaMetaRepository()(implicit db: Database, ec: Execution
       .paginateResult(offset, limit)
       .map { result =>
         PaginationResult(
-          result.values.map( delta => StaticDelta(delta.id.fromCommit, delta.to, delta.size)),
+          result.values.map( delta => StaticDelta(delta.from, delta.to, delta.size)),
           result.total,
           result.offset,
           result.limit
@@ -75,7 +75,7 @@ protected class StaticDeltaMetaRepository()(implicit db: Database, ec: Execution
       .map(_ => ())
   }
 
-  def persistIfValid(ns: Namespace, id: DeltaId, to: Commit, superblockHash: SuperBlockHash): Future[StaticDeltaMeta] = {
+  def persistIfValid(ns: Namespace, id: DeltaId, to: Commit, from: Commit, superblockHash: SuperBlockHash): Future[StaticDeltaMeta] = {
     val io = staticDeltas
       .filter(_.namespace === ns)
       .filter(_.id === id)
@@ -88,7 +88,7 @@ protected class StaticDeltaMetaRepository()(implicit db: Database, ec: Execution
         case Some(_) =>
           DBIO.failed(Errors.StaticDeltaExists(id, superblockHash))
         case None =>
-          val sdm = StaticDeltaMeta(ns, id, to, superblockHash, 0, StaticDeltaMeta.Status.Uploading)
+          val sdm = StaticDeltaMeta(ns, id, from, to, superblockHash, 0, StaticDeltaMeta.Status.Uploading)
           (staticDeltas += sdm).map(_ => sdm)
       }
 

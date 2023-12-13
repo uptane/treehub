@@ -38,7 +38,7 @@ object DataType {
     }
   }
 
-  case class StaticDeltaMeta(namespace: Namespace, id: DeltaId, to: Commit, superblockHash: SuperBlockHash, size: Long, status: StaticDeltaMeta.Status)
+  case class StaticDeltaMeta(namespace: Namespace, id: DeltaId, from: Commit, to: Commit, superblockHash: SuperBlockHash, size: Long, status: StaticDeltaMeta.Status)
 
   type SuperBlockHash = SHA256
 
