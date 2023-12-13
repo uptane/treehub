@@ -11,7 +11,7 @@ import akka.pattern.ask
 
 import scala.concurrent.duration.*
 import com.advancedtelematic.common.DigestCalculator
-import com.advancedtelematic.data.ClientDataType.StaticDelta
+import com.advancedtelematic.data.ClientDataType.{CommitInfo, CommitInfoRequest, CommitSize, StaticDelta}
 import com.advancedtelematic.libats.data.PaginationResult
 import com.advancedtelematic.libats.messaging_datatype.DataType.Commit
 import eu.timepit.refined.api.{RefType, Refined}
@@ -161,7 +161,94 @@ class DeltaResourceSpec extends TreeHubSpec with ResourceSpec with ObjectReposit
     }
   }
 
-    test("publishes usage to bus") {
+  test("POST on deltas with commits returns a correct map of commit infos") {
+    implicit val superBlockHash = RefType.applyRef[SuperBlockHash](DigestCalculator.digest()(new Random().nextString(10))).toOption.get
+
+    val commit1 = RefType.applyRef[Commit]("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef").toOption.get
+    val commit2 = RefType.applyRef[Commit]("234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1").toOption.get
+    val deltaId1 = (commit1, commit2).toDeltaId
+
+    val blob1 = "superblock data 1".getBytes()
+
+    Post(apiUri(s"deltas/${deltaId1.asPrefixedPath}/superblock"), blob1).withSuperblockHash() ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    val commit3 = RefType.applyRef[Commit]("34567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12").toOption.get
+    val deltaId2 = (commit3, commit2).toDeltaId
+
+    val blob2 = "superblock data 2".getBytes()
+
+    Post(apiUri(s"deltas/${deltaId2.asPrefixedPath}/superblock"), blob2).withSuperblockHash() ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    val commit4 = RefType.applyRef[Commit]("4567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef123").toOption.get
+    val deltaId3 = (commit1, commit4).toDeltaId
+
+    val blob3 = "superblock data 3".getBytes()
+    Post(apiUri(s"deltas/${deltaId3.asPrefixedPath}/superblock"), blob3).withSuperblockHash() ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    val deltaId4 = (commit2, commit1).toDeltaId
+
+    val blob4 = "superblock data 4".getBytes()
+    Post(apiUri(s"deltas/${deltaId4.asPrefixedPath}/superblock"), blob4).withSuperblockHash() ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    val expectedResponse = Map[String, CommitInfo](
+      (commit1.toString(), CommitInfo(Seq(CommitSize(commit2, 17)), Seq(CommitSize(commit2, 17), CommitSize(commit4, 17)))),
+      (commit2.toString(), CommitInfo(Seq(CommitSize(commit1, 17), CommitSize(commit3, 17)), Seq(CommitSize(commit1, 17)))),
+      (commit3.toString(), CommitInfo(Seq(), Seq(CommitSize(commit2, 17)))),
+      (commit4.toString(), CommitInfo(Seq(CommitSize(commit1, 17)), Seq()))
+    )
+
+    val request = CommitInfoRequest(Seq(commit1, commit2, commit3, commit4))
+
+    import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+    Post(apiUri("deltas"), request) ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+      val response = parse(responseAs[String])
+        .getOrElse(null)
+        .as[Map[String, CommitInfo]]
+        .toOption.get
+
+      response shouldBe expectedResponse
+    }
+  }
+
+  test("POST on deltas with commits not in the database returns empty map") {
+    implicit val superBlockHash = RefType.applyRef[SuperBlockHash](DigestCalculator.digest()(new Random().nextString(10))).toOption.get
+
+    val commit1 = RefType.applyRef[Commit]("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef").toOption.get
+    val commit2 = RefType.applyRef[Commit]("234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1").toOption.get
+    val deltaId1 = (commit1, commit2).toDeltaId
+
+    val blob1 = "superblock data 1".getBytes()
+
+    Post(apiUri(s"deltas/${deltaId1.asPrefixedPath}/superblock"), blob1).withSuperblockHash() ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    val commit3 = RefType.applyRef[Commit]("34567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12").toOption.get
+
+    val request = CommitInfoRequest(Seq(commit3))
+
+    import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+    Post(apiUri("deltas"), request) ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+      val response = parse(responseAs[String])
+        .getOrElse(null)
+        .as[Map[String, CommitInfo]]
+        .toOption.get
+
+      response.isEmpty shouldBe true
+    }
+  }
+
+  test("publishes usage to bus") {
     val deltaId = "6qdddbmoaLtYLmZg2Q8OZm7syoxvAOFs0fAXbavojKY-k_F8QpdRP9KlPD6wiS2HNF7WuL1sgfu1tLaJXV6GjIU".refineTry[ValidDeltaId].get
     val blob = "some other data".getBytes
 
