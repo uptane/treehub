@@ -58,6 +58,16 @@ protected class StaticDeltaMetaRepository()(implicit db: Database, ec: Execution
       }
   }
 
+  def findAllWithCommits(ns: Namespace, commits: Seq[Commit], status: StaticDeltaMeta.Status): Future[Seq[StaticDeltaMeta]] = db.run {
+    staticDeltas
+      .filter(_.namespace === ns)
+      .filter(_.status === status)
+      .filter { item =>
+        item.to.inSet(commits) || item.from.inSet(commits)
+      }
+      .result
+  }
+
   def findByTo(ns: Namespace, to: Commit, status: StaticDeltaMeta.Status): Future[Seq[StaticDeltaMeta]] = db.run {
     staticDeltas
       .filter(_.namespace === ns)
