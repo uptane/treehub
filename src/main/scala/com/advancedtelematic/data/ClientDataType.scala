@@ -29,7 +29,9 @@ object ClientDataType {
     implicit val Decoder: Decoder[CommitSize] = deriveDecoder[CommitSize]
   }
 
-  case class CommitInfo(from: Seq[CommitSize], to: Seq[CommitSize])
+  case class CommitInfo(from: Seq[CommitSize] = Seq(), to: Seq[CommitSize] = Seq()) {
+    def +(other: CommitInfo): CommitInfo = CommitInfo(from ++ other.from, to ++ other.to)
+  }
 
   object CommitInfo {
     implicit val Encoder: Encoder[CommitInfo] = deriveEncoder[CommitInfo]

@@ -15,6 +15,7 @@ import com.advancedtelematic.data.ClientDataType.{CommitInfo, CommitInfoRequest,
 import com.advancedtelematic.libats.data.PaginationResult
 import com.advancedtelematic.libats.messaging_datatype.DataType.Commit
 import eu.timepit.refined.api.{RefType, Refined}
+import io.circe.KeyDecoder
 import io.circe.parser.parse
 import org.scalatest.BeforeAndAfterEach
 
@@ -34,6 +35,8 @@ class DeltaResourceSpec extends TreeHubSpec with ResourceSpec with ObjectReposit
       value ~> RawHeader("x-trx-superblock-hash", hash.value)
     }
   }
+
+  implicit val commitKeyDecoder: KeyDecoder[Commit] = KeyDecoder[Commit] { str => RefType.applyRef[Commit](str).toOption }
 
   test("GET summary returns 404 Not Found if summary is not in the delta store") {
     Get(apiUri(s"summary")) ~> RawHeader("x-ats-namespace", "notfound") ~> routes ~> check {
@@ -198,22 +201,20 @@ class DeltaResourceSpec extends TreeHubSpec with ResourceSpec with ObjectReposit
       status shouldBe StatusCodes.OK
     }
 
-    val expectedResponse = Map[String, CommitInfo](
-      (commit1.toString(), CommitInfo(Seq(CommitSize(commit2, 17)), Seq(CommitSize(commit2, 17), CommitSize(commit4, 17)))),
-      (commit2.toString(), CommitInfo(Seq(CommitSize(commit1, 17), CommitSize(commit3, 17)), Seq(CommitSize(commit1, 17)))),
-      (commit3.toString(), CommitInfo(Seq(), Seq(CommitSize(commit2, 17)))),
-      (commit4.toString(), CommitInfo(Seq(CommitSize(commit1, 17)), Seq()))
+    val expectedResponse = Map[Commit, CommitInfo](
+      (commit1, CommitInfo(Seq(CommitSize(commit2, 17)), Seq(CommitSize(commit2, 17), CommitSize(commit4, 17)))),
+      (commit2, CommitInfo(Seq(CommitSize(commit1, 17), CommitSize(commit3, 17)), Seq(CommitSize(commit1, 17)))),
+      (commit3, CommitInfo(Seq(), Seq(CommitSize(commit2, 17)))),
+      (commit4, CommitInfo(Seq(CommitSize(commit1, 17)), Seq()))
     )
 
     val request = CommitInfoRequest(Seq(commit1, commit2, commit3, commit4))
 
     import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+
     Post(apiUri("deltas"), request) ~> routes ~> check {
       status shouldBe StatusCodes.OK
-      val response = parse(responseAs[String])
-        .getOrElse(null)
-        .as[Map[String, CommitInfo]]
-        .toOption.get
+      val response = responseAs[Map[Commit, CommitInfo]]
 
       response shouldBe expectedResponse
     }
@@ -237,12 +238,10 @@ class DeltaResourceSpec extends TreeHubSpec with ResourceSpec with ObjectReposit
     val request = CommitInfoRequest(Seq(commit3))
 
     import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+
     Post(apiUri("deltas"), request) ~> routes ~> check {
       status shouldBe StatusCodes.OK
-      val response = parse(responseAs[String])
-        .getOrElse(null)
-        .as[Map[String, CommitInfo]]
-        .toOption.get
+      val response = responseAs[Map[Commit, CommitInfo]]
 
       response.isEmpty shouldBe true
     }

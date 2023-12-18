@@ -13,6 +13,7 @@ import com.advancedtelematic.treehub.http.PathMatchers.*
 import com.advancedtelematic.treehub.repo_metrics.UsageMetricsRouter
 import com.advancedtelematic.treehub.repo_metrics.UsageMetricsRouter.UpdateBandwidth
 import eu.timepit.refined.api.RefType
+import io.circe.KeyEncoder
 import io.circe.syntax.EncoderOps
 import org.slf4j.LoggerFactory
 
@@ -69,9 +70,10 @@ class DeltaResource(namespace: Directive1[Namespace],
           } ~
             post {
               import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+              implicit val commitKeyEncoder: KeyEncoder[Commit] = KeyEncoder.encodeKeyString.contramap(_.value)
 
               entity(as[CommitInfoRequest]) { request =>
-                val f = staticDeltas.retrieve(ns, request.commits).map(_.asJson.toString())
+                val f = staticDeltas.getCommitInfos(ns, request.commits)
                 complete(f)
               }
             } ~

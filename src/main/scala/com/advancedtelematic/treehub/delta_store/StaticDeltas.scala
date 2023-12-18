@@ -33,30 +33,25 @@ class StaticDeltas(storage: BlobStore)(implicit val db: Database, ec: ExecutionC
     }
   }
 
-  def retrieve(ns: Namespace, commits: Seq[Commit]): Future[immutable.Map[String, CommitInfo]] = async {
-    val map = mutable.Map[String, CommitInfo]()
-
-    await(staticDeltaMetaRepository.findAllWithCommits(ns, commits, StaticDeltaMeta.Status.Available))
-      .foreach { delta =>
+  def getCommitInfos(ns: Namespace, commits: Seq[Commit]): Future[Map[Commit, CommitInfo]] = {
+    staticDeltaMetaRepository.findAllWithCommits(ns, commits, StaticDeltaMeta.Status.Available).map { deltas =>
+      deltas.foldRight(Map.empty[Commit, CommitInfo].withDefaultValue(CommitInfo())) { (delta, acc) =>
         val fromCommit = delta.from
         val toCommit = delta.to
 
-        if (commits.contains(fromCommit)) {
-          var commitInfo = map.getOrElse(fromCommit.toString(), CommitInfo(Seq(),Seq()))
-          commitInfo = CommitInfo(commitInfo.from, commitInfo.to.appended(CommitSize(toCommit, delta.size)))
+        val fromTuple = if (commits.contains(fromCommit)) {
+          Some(fromCommit -> (CommitInfo(to = Seq(CommitSize(toCommit, delta.size))) + acc(fromCommit)))
+        } else
+          None
 
-          map(fromCommit.toString()) = commitInfo
-        }
+        val toTuple = if (commits.contains(toCommit)) {
+          Some(toCommit -> (CommitInfo(from = Seq(CommitSize(fromCommit, delta.size))) + acc(toCommit)))
+        } else
+          None
 
-        if (commits.contains(toCommit)) {
-          var commitInfo = map.getOrElse(toCommit.toString(), CommitInfo(Seq(), Seq()))
-          commitInfo = CommitInfo(commitInfo.from.appended(CommitSize(fromCommit, delta.size)), commitInfo.to)
-
-          map(toCommit.toString()) = commitInfo
-        }
+        acc ++ fromTuple ++ toTuple
       }
-
-    map.toMap
+    }
   }
 
   def getAll(ns: Namespace, offset: Option[Long] = None, limit: Option[Long] = None): Future[PaginationResult[StaticDelta]] =
