@@ -4,10 +4,11 @@ import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.util.FastFuture
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import com.advancedtelematic.data.ClientDataType.StaticDelta
+import com.advancedtelematic.data.ClientDataType.{CommitInfo, CommitSize, StaticDelta}
 import com.advancedtelematic.data.DataType.{DeltaId, DeltaIndexId, StaticDeltaIndex, StaticDeltaMeta, SuperBlockHash}
 import com.advancedtelematic.libats.data.DataType.Namespace
 import com.advancedtelematic.libats.data.PaginationResult
+import com.advancedtelematic.libats.messaging_datatype.DataType.Commit
 import com.advancedtelematic.treehub.db.DbOps.PaginationResultOps
 import com.advancedtelematic.treehub.db.StaticDeltaMetaRepositorySupport
 import com.advancedtelematic.treehub.http.Errors
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory
 import slick.jdbc.MySQLProfile.api.*
 
 import scala.async.Async.{async, await}
+import scala.collection.{immutable, mutable}
 import scala.concurrent.{ExecutionContext, Future}
 
 class StaticDeltas(storage: BlobStore)(implicit val db: Database, ec: ExecutionContext) extends StaticDeltaMetaRepositorySupport {
@@ -31,16 +33,38 @@ class StaticDeltas(storage: BlobStore)(implicit val db: Database, ec: ExecutionC
     }
   }
 
+  def getCommitInfos(ns: Namespace, commits: Seq[Commit]): Future[Map[Commit, CommitInfo]] = {
+    staticDeltaMetaRepository.findAllWithCommits(ns, commits, StaticDeltaMeta.Status.Available).map { deltas =>
+      deltas.foldRight(Map.empty[Commit, CommitInfo].withDefaultValue(CommitInfo())) { (delta, acc) =>
+        val fromCommit = delta.from
+        val toCommit = delta.to
+
+        val fromTuple = if (commits.contains(fromCommit)) {
+          Some(fromCommit -> (CommitInfo(to = Seq(CommitSize(toCommit, delta.size))) + acc(fromCommit)))
+        } else
+          None
+
+        val toTuple = if (commits.contains(toCommit)) {
+          Some(toCommit -> (CommitInfo(from = Seq(CommitSize(fromCommit, delta.size))) + acc(toCommit)))
+        } else
+          None
+
+        acc ++ fromTuple ++ toTuple
+      }
+    }
+  }
+
   def getAll(ns: Namespace, offset: Option[Long] = None, limit: Option[Long] = None): Future[PaginationResult[StaticDelta]] =
     staticDeltaMetaRepository.findAll(ns, StaticDeltaMeta.Status.Available, offset.orDefaultOffset, limit.orDefaultLimit)
 
   def store(ns: Namespace, deltaId: DeltaId, path: String, data: Source[ByteString, ?], size: Long,
             superblockHash: SuperBlockHash): Future[Unit] = async {
+    val from = deltaId.fromCommit
     val to = deltaId.toCommit
     val objectPath = deltaId.asPrefixedPath.resolve(path)
 
     // Check that either the SDM does not exist or the hash matches
-    await(staticDeltaMetaRepository.persistIfValid(ns, deltaId, to, superblockHash))
+    await(staticDeltaMetaRepository.persistIfValid(ns, deltaId, to, from, superblockHash))
 
     // Upload to s3
     await(storage.storeStream(ns, objectPath, size, data))

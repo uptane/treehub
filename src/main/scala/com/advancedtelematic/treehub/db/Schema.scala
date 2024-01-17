@@ -81,13 +81,14 @@ object Schema {
     def id = column[DeltaId]("id")
     def superblockHash = column[SuperBlockHash]("superblock_hash")
     def to = column[Commit]("to")
+    def from = column[Commit]("from")
     def size = column[Long]("size")
 
     def status = column[StaticDeltaMeta.Status]("status")
 
     def pk = primaryKey("pk_ref", (namespace, id))
 
-    override def * = (namespace, id, to, superblockHash, size, status) <> ((StaticDeltaMeta.apply _).tupled, StaticDeltaMeta.unapply)
+    override def * = (namespace, id, from, to, superblockHash, size, status) <> ((StaticDeltaMeta.apply _).tupled, StaticDeltaMeta.unapply)
   }
 
   protected[db] val staticDeltas = TableQuery[StaticDeltaMetaTable]
