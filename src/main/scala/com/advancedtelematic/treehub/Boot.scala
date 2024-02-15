@@ -13,7 +13,7 @@ import com.advancedtelematic.libats.slick.db.{BootMigrations, CheckMigrations, D
 import com.advancedtelematic.libats.slick.monitoring.DatabaseMetrics
 import com.advancedtelematic.metrics.prometheus.PrometheusMetricsSupport
 import com.advancedtelematic.metrics.{AkkaHttpConnectionMetrics, AkkaHttpRequestMetrics, MetricsSupport}
-import com.advancedtelematic.treehub.daemon.StaleObjectArchiveActor
+import com.advancedtelematic.treehub.daemon.{DeletedDeltaCleanupActor, StaleObjectArchiveActor}
 import com.advancedtelematic.treehub.delta_store.StaticDeltas
 import com.advancedtelematic.treehub.http.TreeHubRoutes
 import com.advancedtelematic.treehub.object_store.{LocalFsBlobStore, ObjectStore, S3BlobStore}
@@ -83,6 +83,8 @@ class TreehubBoot(override val globalConfig: Config,
     if (objectStorage.supportsOutOfBandStorage) {
       system.actorOf(StaleObjectArchiveActor.withBackOff(objectStorage, staleObjectExpireAfter, autoStart = true), "stale-objects-archiver")
     }
+
+    system.actorOf(DeletedDeltaCleanupActor.withBackOff(deltaBlobStorage, autoStart = true), "deleted-deltas-cleanup")
 
     val routes: Route =
       (versionHeaders(version) & requestMetrics(metricRegistry) & logResponseMetrics(projectName)) {

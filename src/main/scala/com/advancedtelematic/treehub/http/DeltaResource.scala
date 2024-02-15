@@ -77,6 +77,11 @@ class DeltaResource(namespace: Directive1[Namespace],
                 complete(f)
               }
             } ~
+            (delete & path(PrefixedDeltaIdPath)) { id =>
+              val f = staticDeltas.markDeleted(ns, id)
+              complete(f.map(_ => StatusCodes.Accepted))
+            }
+            ~
             (pathEnd & parameters(Symbol("from").as[Commit], Symbol("to").as[Commit])) { (from, to) =>
               val deltaId = (from, to).toDeltaId
               val uri = Uri(s"/deltas/${deltaId.asPrefixedPath}")

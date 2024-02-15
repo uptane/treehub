@@ -3,6 +3,7 @@ package com.advancedtelematic.treehub.object_store
 import akka.Done
 import akka.http.scaladsl.model.headers.Location
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes, Uri}
+import akka.http.scaladsl.util.FastFuture
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Source, StreamConverters}
 import akka.util.ByteString
@@ -14,6 +15,7 @@ import com.amazonaws.auth.{AWSCredentials, AWSCredentialsProvider}
 import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.model.*
+import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import org.slf4j.LoggerFactory
 
@@ -134,6 +136,39 @@ class S3BlobStore(s3Credentials: S3Credentials, s3client: AmazonS3, allowRedirec
         Done
       }
     }
+
+  import scala.jdk.CollectionConverters._
+  override def deleteObjects(ns: Namespace, pathPrefix: Path): Future[Done] = {
+    def loop(): Future[Done] = {
+      val listRequest = new ListObjectsRequest()
+        .withBucketName(bucketId)
+        .withPrefix(objectFilename(ns, pathPrefix))
+        .withMaxKeys(100)
+
+      val resultF = Future {
+        blocking(s3client.listObjects(listRequest))
+      }
+
+      resultF.flatMap { result =>
+        val keys = result.getObjectSummaries.asScala.map(_.getKey).toList
+        Future {
+          blocking {
+            val deleteRequest = new DeleteObjectsRequest(bucketId)
+            deleteRequest.setKeys(keys.map(new KeyVersion(_)).asJava)
+
+            s3client.deleteObjects(deleteRequest)
+          }
+        }.flatMap { _ =>
+          if (result.isTruncated)
+            loop()
+          else
+            FastFuture.successful(Done)
+        }
+      }
+    }
+
+    loop()
+  }
 }
 
 object S3Client {

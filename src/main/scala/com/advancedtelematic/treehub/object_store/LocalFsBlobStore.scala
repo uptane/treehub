@@ -10,7 +10,9 @@ import com.advancedtelematic.libats.data.DataType.Namespace
 import com.advancedtelematic.treehub.http.Errors
 import org.slf4j.LoggerFactory
 
-import java.nio.file.{Files, Path}
+import java.io.IOException
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
 import scala.async.Async.{async, await}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -85,7 +87,37 @@ class LocalFsBlobStore(root: Path)(implicit ec: ExecutionContext, mat: Materiali
 
   override def deleteObject(ns: Namespace, path: Path): Future[Done] = FastFuture.successful {
     val p = objectPath(ns, path)
+
     Files.delete(p)
+    Done
+  }
+
+  override def deleteObjects(ns: Namespace, pathPrefix: Path): Future[Done] = FastFuture.successful {
+    val p = objectPath(ns, pathPrefix)
+
+    log.info(s">>>> DELETE objects in path recursively: $p")
+
+    Files.walkFileTree(
+      p,
+      new SimpleFileVisitor[Path] {
+        override def visitFile(
+                                file: Path,
+                                attrs: BasicFileAttributes
+                              ): FileVisitResult = {
+          Files.delete(file)
+          FileVisitResult.CONTINUE
+        }
+
+        override def postVisitDirectory(
+                                         dir: Path,
+                                         exc: IOException
+                                       ): FileVisitResult = {
+          Files.delete(dir)
+          FileVisitResult.CONTINUE
+        }
+      }
+    )
+
     Done
   }
 
