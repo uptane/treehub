@@ -1,5 +1,6 @@
 package com.advancedtelematic.treehub.object_store
 
+import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.StatusCodes
 import akka.stream.scaladsl.Source
@@ -97,4 +98,27 @@ class S3BlobStoreIntegrationSpec extends TreeHubSpec {
     response.status shouldBe StatusCodes.OK
     response.entity.dataBytes.runFold(ByteString.empty)(_ ++ _).futureValue.utf8String shouldBe "this is byte. Call me. maybe."
   }
-}
+
+  test("correctly deletes objects from blob storage") {}
+    val basePath = "some_base_path"
+    val pathsWithBase = Seq(s"$basePath/superblock", s"$basePath/0", s"$basePath/1", s"$basePath/2/123", s"$basePath/random")
+    val otherPaths = Seq("some_other_path/superblock", "some_path/1")
+
+    (pathsWithBase ++ otherPaths).foreach { pathString =>
+      val blob = ByteString(s"this is byte for path $pathString")
+      val source = Source.single(blob)
+      val path = Paths.get(pathString)
+
+      s3BlobStore.storeStream(ns, path, blob.size, source).futureValue shouldBe blob.size
+      s3BlobStore.exists(ns, path).futureValue shouldBe true
+    }
+
+    s3BlobStore.deleteObjects(ns, Paths.get(basePath)).futureValue shouldBe Done
+
+    pathsWithBase.foreach { pathString =>
+      s3BlobStore.exists(ns, Paths.get(pathString)).futureValue shouldBe false
+    }
+    otherPaths.foreach { pathString =>
+      s3BlobStore.exists(ns, Paths.get(pathString)).futureValue shouldBe true
+    }
+  }

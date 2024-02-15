@@ -22,6 +22,9 @@ class TreehubRoutesSpec extends TreeHubSpec with ResourceSpec {
     override def deleteObject(ns: DataType.Namespace, path: Path): Future[Done] =
       FastFuture.failed(new RuntimeException("[test] delete failed"))
 
+    override def deleteObjects(ns: DataType.Namespace, pathPrefix: Path): Future[Done] =
+      FastFuture.failed(new RuntimeException("[test] delete failed"))
+
     override def storeStream(namespace: DataType.Namespace, path: Path, size: Long, blob: Source[ByteString, _]): Future[Long] =
       ???
 

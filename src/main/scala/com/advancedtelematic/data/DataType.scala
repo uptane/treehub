@@ -35,6 +35,7 @@ object DataType {
 
       case object Uploading extends Status
       case object Available extends Status
+      case object Deleted extends Status
     }
   }
 

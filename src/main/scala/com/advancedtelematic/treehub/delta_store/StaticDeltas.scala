@@ -54,6 +54,15 @@ class StaticDeltas(storage: BlobStore)(implicit val db: Database, ec: ExecutionC
     }
   }
 
+  def markDeleted(ns: Namespace, deltaId: DeltaId): Future[Unit] = async {
+    await {
+      staticDeltaMetaRepository.setStatus(ns, deltaId, StaticDeltaMeta.Status.Deleted).recover {
+        case err =>
+          log.error(s"could not delete object $ns/$deltaId", err)
+      }
+    }
+  }
+
   def getAll(ns: Namespace, offset: Option[Long] = None, limit: Option[Long] = None): Future[PaginationResult[StaticDelta]] =
     staticDeltaMetaRepository.findAll(ns, StaticDeltaMeta.Status.Available, offset.orDefaultOffset, limit.orDefaultLimit)
 

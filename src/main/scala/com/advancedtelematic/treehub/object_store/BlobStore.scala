@@ -20,6 +20,8 @@ object BlobStore {
 trait BlobStore {
   def deleteObject(ns: Namespace, path: Path): Future[Done]
 
+  def deleteObjects(ns: Namespace, pathPrefix: Path): Future[Done]
+
   def storeStream(namespace: Namespace, path: Path, size: Long, blob: Source[ByteString, _]): Future[Long]
 
   val supportsOutOfBandStorage: Boolean

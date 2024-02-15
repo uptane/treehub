@@ -38,9 +38,16 @@ protected class StaticDeltaMetaRepository()(implicit db: Database, ec: Execution
     staticDeltas
       .filter(_.namespace === ns)
       .filter(_.id === deltaId)
+      .filter(_.status.inSet(Seq(StaticDeltaMeta.Status.Uploading, StaticDeltaMeta.Status.Available))) // filter out if deleted?
       .result
       .headOption
       .failIfNone(Errors.StaticDeltaDoesNotExist)
+  }
+
+  def findByStatus(status: StaticDeltaMeta.Status): Future[Seq[StaticDeltaMeta]] = db.run {
+    staticDeltas
+      .filter(_.status === status)
+      .result
   }
 
   def findAll(ns: Namespace, status: StaticDeltaMeta.Status, offset: Long, limit: Long): Future[PaginationResult[StaticDelta]] = db.run {
@@ -82,6 +89,14 @@ protected class StaticDeltaMetaRepository()(implicit db: Database, ec: Execution
       .filter(_.id === id)
       .map(_.status)
       .update(status)
+      .map(_ => ())
+  }
+
+  def delete(ns: Namespace, id: DeltaId): Future[Unit] = db.run {
+    staticDeltas
+      .filter(_.namespace === ns)
+      .filter(_.id === id)
+      .delete
       .map(_ => ())
   }
 

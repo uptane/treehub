@@ -247,6 +247,32 @@ class DeltaResourceSpec extends TreeHubSpec with ResourceSpec with ObjectReposit
     }
   }
 
+  test("DELETE on deltas makes the static delta unavailable") {
+    implicit val superBlockHash = RefType.applyRef[SuperBlockHash](DigestCalculator.digest()(new Random().nextString(10))).toOption.get
+
+    val commit1 = RefType.applyRef[Commit]("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef").toOption.get
+    val commit2 = RefType.applyRef[Commit]("234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1").toOption.get
+    val deltaId1 = (commit1, commit2).toDeltaId
+
+    val blob1 = "superblock data 1".getBytes()
+
+    Post(apiUri(s"deltas/${deltaId1.asPrefixedPath}/superblock"), blob1).withSuperblockHash() ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    Get(apiUri(s"deltas/${deltaId1.asPrefixedPath}/superblock")) ~> routes ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    Delete(apiUri(s"deltas/${deltaId1.asPrefixedPath}")) ~> routes ~> check {
+      status shouldBe StatusCodes.Accepted
+    }
+
+    Get(apiUri(s"deltas/${deltaId1.asPrefixedPath}/superblock")) ~> routes ~> check {
+      status shouldBe StatusCodes.NotFound
+    }
+  }
+
   test("publishes usage to bus") {
     val deltaId = "6qdddbmoaLtYLmZg2Q8OZm7syoxvAOFs0fAXbavojKY-k_F8QpdRP9KlPD6wiS2HNF7WuL1sgfu1tLaJXV6GjIU".refineTry[ValidDeltaId].get
     val blob = "some other data".getBytes
