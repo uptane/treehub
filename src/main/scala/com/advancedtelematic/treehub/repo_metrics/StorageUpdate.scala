@@ -3,7 +3,7 @@ package com.advancedtelematic.treehub.repo_metrics
 import java.time.Instant
 import java.util.UUID
 import scala.concurrent.duration.*
-import akka.actor.{Actor, ActorLogging, ActorRef, Props, Status}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Status}
 import akka.stream.{ActorMaterializer, OverflowStrategy}
 import akka.stream.scaladsl.{Sink, Source}
 import com.advancedtelematic.data.DataType.ObjectId
@@ -73,7 +73,7 @@ protected class StorageUpdate(publisher: MessageBusPublisher, objectStore: Objec
 
   var namespaceUsageStream: ActorRef = null
 
-  implicit val _system = context.system
+  implicit val _system: ActorSystem = context.system
 
   override def preStart(): Unit = {
     namespaceUsageStream =

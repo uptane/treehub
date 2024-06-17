@@ -12,12 +12,12 @@ import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.time.{Seconds, Span}
 
 import java.nio.file.Files
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 class ObjectStoreSpec extends TreeHubSpec with DatabaseSpec with ObjectRepositorySupport with PatienceConfiguration {
 
-  implicit val ec = ExecutionContext.global
-  implicit val system = ActorSystem("ObjectStoreSpecSystem")
+  implicit val ec: ExecutionContextExecutor = ExecutionContext.global
+  implicit val system: ActorSystem = ActorSystem("ObjectStoreSpecSystem")
 
   override implicit def patienceConfig = PatienceConfig().copy(timeout = Span(3, Seconds))
 

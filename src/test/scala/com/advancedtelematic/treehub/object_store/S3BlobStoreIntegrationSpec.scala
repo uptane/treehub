@@ -14,12 +14,12 @@ import org.scalatest.time.{Seconds, Span}
 
 import java.nio.file.Paths
 import scala.async.Async.{async, await}
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 class S3BlobStoreIntegrationSpec extends TreeHubSpec {
-  implicit val ec = ExecutionContext.global
+  implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
-  implicit lazy val system = ActorSystem("S3BlobStoreSpec")
+  implicit lazy val system: ActorSystem = ActorSystem("S3BlobStoreSpec")
 
   val ns = Namespace("S3BlobStoreIntegrationSpec")
 

@@ -2,6 +2,7 @@ package com.advancedtelematic.treehub.db
 
 import java.time.Instant
 import com.advancedtelematic.data.DataType.ObjectStatus.ObjectStatus
+import com.advancedtelematic.data.DataType.StaticDeltaMeta
 import com.advancedtelematic.libats.data.DataType.Namespace
 import com.advancedtelematic.libats.messaging_datatype.DataType.Commit
 import com.advancedtelematic.libats.slick.codecs.SlickEnumeratum
@@ -9,6 +10,8 @@ import slick.jdbc.MySQLProfile.api.*
 import com.advancedtelematic.libats.slick.db.SlickExtensions.javaInstantMapping
 import io.circe.Json
 import com.advancedtelematic.libats.slick.db.SlickCirceMapper.jsonMapper
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
 
 object Schema {
   import com.advancedtelematic.libats.slick.db.SlickAnyVal.*
@@ -16,7 +19,7 @@ object Schema {
   import com.advancedtelematic.data.DataType.*
   import SlickMappings.*
 
-  implicit val staticDeltaStatusMapper  = SlickEnumeratum.enumeratumMapper(StaticDeltaMeta.Status)
+  implicit val staticDeltaStatusMapper: JdbcType[StaticDeltaMeta.Status] with BaseTypedType[StaticDeltaMeta.Status] = SlickEnumeratum.enumeratumMapper(StaticDeltaMeta.Status)
 
   class TObjectTable(tag: Tag) extends Table[TObject](tag, "object") {
     def namespace = column[Namespace]("namespace")

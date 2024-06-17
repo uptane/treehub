@@ -15,11 +15,11 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.time.{Seconds, Span}
 
 import java.nio.file.Paths
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 import scala.util.Random
 
 class S3DeltaStorageIntegrationSpec extends TreeHubSpec with ResourceSpec with BeforeAndAfterAll with StaticDeltaMetaRepositorySupport {
-  implicit val ec = ExecutionContext.global
+  implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
   val s3Client = object_store.S3Client(s3Credentials)
 

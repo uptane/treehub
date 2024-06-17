@@ -1,6 +1,6 @@
 name := "treehub"
 organization := "io.github.uptane"
-scalaVersion := "2.13.10"
+scalaVersion := "2.13.11"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-Xasync", "-Xsource:3")
 
@@ -35,8 +35,8 @@ lazy val treehub = (project in file("."))
       "com.typesafe.akka" %% "akka-slf4j" % akkaV,
       "org.scalatest"     %% "scalatest" % scalaTestV % "test,it",
 
-      "ch.qos.logback" % "logback-classic" % "1.4.8",
-      "org.slf4j" % "slf4j-api" % "2.0.7",
+      "ch.qos.logback" % "logback-classic" % "1.5.6",
+      "org.slf4j" % "slf4j-api" % "2.0.13",
 
       "io.github.uptane" %% "libats" % libatsV,
       "io.github.uptane" %% "libats-http" % libatsV,
@@ -52,13 +52,12 @@ lazy val treehub = (project in file("."))
       "org.scala-lang.modules" %% "scala-async" % "1.0.1",
       "org.mariadb.jdbc" % "mariadb-java-client" % "3.1.4",
 
-      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.513",
-
       "org.scodec" %% "scodec-bits" % "1.1.37",
       "org.scodec" %% "scodec-core" % "1.11.10",
 
       "com.beachape" %% "enumeratum" % "1.7.2",
       "com.beachape" %% "enumeratum-circe" % "1.7.2",
+      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.743"
     )
   }))
 

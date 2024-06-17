@@ -78,7 +78,7 @@ class FakeUsageUpdate extends Actor with ActorLogging {
 }
 
 trait LongHttpRequest {
-  implicit def default(implicit system: ActorSystem) =
+  implicit def default(implicit system: ActorSystem): RouteTestTimeout =
     RouteTestTimeout(15.seconds.dilated(system))
 }
 
