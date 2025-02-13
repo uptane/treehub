@@ -57,7 +57,7 @@ lazy val treehub = (project in file("."))
 
       "com.beachape" %% "enumeratum" % "1.7.2",
       "com.beachape" %% "enumeratum-circe" % "1.7.2",
-      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.780"
+      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.781"
     )
   }))
 
