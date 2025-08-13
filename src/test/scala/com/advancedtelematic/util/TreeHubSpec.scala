@@ -4,9 +4,10 @@ import com.advancedtelematic.libats.data.DataType.Namespace
 import com.advancedtelematic.treehub.Settings
 import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-abstract class TreeHubSpec extends FunSuite with Matchers with ScalaFutures with Settings {
+abstract class TreeHubSpec extends AnyFunSuite with Matchers with ScalaFutures with Settings {
   val defaultNs = Namespace("default")
   val testDbConfig: Config = ConfigFactory.load().getConfig("ats.treehub.database")
 }
