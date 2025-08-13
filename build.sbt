@@ -52,7 +52,7 @@ lazy val treehub = (project in file("."))
       "org.scala-lang.modules" %% "scala-async" % "1.0.1",
       "org.mariadb.jdbc" % "mariadb-java-client" % "3.5.5",
 
-      "org.scodec" %% "scodec-bits" % "1.1.37",
+      "org.scodec" %% "scodec-bits" % "1.1.38",
       "org.scodec" %% "scodec-core" % "1.11.10",
 
       "com.beachape" %% "enumeratum" % "1.7.2",
