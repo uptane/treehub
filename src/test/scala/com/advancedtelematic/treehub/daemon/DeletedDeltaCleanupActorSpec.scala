@@ -71,7 +71,7 @@ class DeletedDeltaCleanupActorSpec extends DeletedDeltaCleanupActorSpecUtil {
     storage.exists(defaultNs, deltaId.asPrefixedPath.resolve("superblock")).futureValue shouldBe true
 
     // Mark delta for deletion
-    deltas.markDeleted(defaultNs, deltaId)
+    deltas.markDeleted(defaultNs, deltaId).futureValue
 
     // Validate delta is not available anymore
     staticDeltaMetaRepository.find(defaultNs, deltaId).failed.futureValue shouldBe Errors.StaticDeltaDoesNotExist
@@ -108,7 +108,7 @@ class DeletedDeltaCleanupActorSpec extends DeletedDeltaCleanupActorSpecUtil {
 
     subject ! Done(0, 0)
 
-    deltas.markDeleted(defaultNs, deltaId)
+    deltas.markDeleted(defaultNs, deltaId).futureValue
 
     eventually({
       // Validate delta parts were deleted from storage
