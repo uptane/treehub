@@ -1,9 +1,9 @@
 package com.advancedtelematic.treehub.daemon
 
-import akka.actor.{ActorRef, ActorSystem, PoisonPill}
-import akka.stream.scaladsl.Source
-import akka.testkit.{ImplicitSender, TestException, TestKitBase}
-import akka.util.ByteString
+import org.apache.pekko.actor.{ActorRef, ActorSystem, PoisonPill}
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.testkit.{ImplicitSender, TestException, TestKitBase}
+import org.apache.pekko.util.ByteString
 import com.advancedtelematic.common.DigestCalculator
 import com.advancedtelematic.data.DataType.{CommitTupleOps, StaticDeltaMeta, SuperBlockHash}
 import com.advancedtelematic.libats.data.DataType
@@ -202,8 +202,8 @@ class DeletedDeltaCleanupActorMockStorageSpec extends DeletedDeltaCleanupActorSp
     result2.status shouldBe StaticDeltaMeta.Status.Available
 
     // Mark deltas for deletion
-    deltas.markDeleted(defaultNs, deltaId1)
-    deltas.markDeleted(defaultNs, deltaId2)
+    deltas.markDeleted(defaultNs, deltaId1).futureValue
+    deltas.markDeleted(defaultNs, deltaId2).futureValue
 
     // Validate deltas are not available anymore
     staticDeltaMetaRepository.find(defaultNs, deltaId1).failed.futureValue shouldBe Errors.StaticDeltaDoesNotExist
