@@ -56,7 +56,7 @@ lazy val treehub = (project in file("."))
       "org.scodec" %% "scodec-core" % "1.11.10",
 
       "com.beachape" %% "enumeratum" % "1.7.2",
-      "com.beachape" %% "enumeratum-circe" % "1.7.2",
+      "com.beachape" %% "enumeratum-circe" % "1.7.5",
       "com.amazonaws" % "aws-java-sdk-s3" % "1.12.794"
     )
   }))
