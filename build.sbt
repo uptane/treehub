@@ -1,6 +1,6 @@
 name := "treehub"
 organization := "io.github.uptane"
-scalaVersion := "2.13.11"
+scalaVersion := "2.13.18"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-Xasync", "-Xsource:3")
 
