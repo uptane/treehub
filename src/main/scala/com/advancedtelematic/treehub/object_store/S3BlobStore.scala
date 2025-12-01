@@ -45,7 +45,7 @@ class S3BlobStore(s3Credentials: S3Credentials, s3client: AmazonS3, allowRedirec
     val sink =  StreamConverters.asInputStream().mapMaterializedValue { is =>
       val meta = new ObjectMetadata()
       meta.setContentLength(size)
-      val request = new PutObjectRequest(s3Credentials.blobBucketId, filename, is, meta).withCannedAcl(CannedAccessControlList.AuthenticatedRead)
+      val request = new PutObjectRequest(s3Credentials.blobBucketId, filename, is, meta)
 
       log.info(s"Uploading $filename to amazon s3")
 
