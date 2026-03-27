@@ -23,7 +23,7 @@ lazy val treehub = (project in file("."))
   .settings(Seq(libraryDependencies ++= {
     val pekkoV = "1.1.5"
     val pekkoHttpV = "1.2.0"
-    val scalaTestV = "3.0.9"
+    val scalaTestV = "3.2.20"
     val libatsV = "5.0.0"
 
     Seq(

@@ -3,9 +3,9 @@ package com.advancedtelematic.data
 import com.advancedtelematic.data.DataType.{StaticDeltaIndex, SuperBlockHash}
 import com.advancedtelematic.libats.messaging_datatype.DataType.Commit
 import eu.timepit.refined.api.RefType
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
 
-class GVariantEncoderSpec extends FunSuite with Matchers {
+class GVariantEncoderSpec extends AnyFunSuite with org.scalatest.matchers.should.Matchers {
 
   def Commit(str: String): Commit = RefType.applyRef[Commit](str).toOption.get
 
