@@ -24,7 +24,7 @@ lazy val treehub = (project in file("."))
     val pekkoV = "1.1.5"
     val pekkoHttpV = "1.2.0"
     val scalaTestV = "3.0.9"
-    val libatsV = "5.0.0"
+    val libatsV = "5.0.4"
 
     Seq(
       "org.apache.pekko" %% "pekko-actor" % pekkoV,
